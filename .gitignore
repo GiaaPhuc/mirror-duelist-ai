@@ -1,0 +1,23 @@
+# Godot
+game/.godot/
+*.import
+export_presets.cfg
+
+# Python
+__pycache__/
+.venv/
+venv/
+*.pyc
+.pytest_cache/
+
+# ML artifacts (giữ thư mục qua .gitkeep)
+data/raw/*.csv
+data/models/*.pt
+data/models/*.json
+!data/raw/.gitkeep
+!data/models/.gitkeep
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.swp
