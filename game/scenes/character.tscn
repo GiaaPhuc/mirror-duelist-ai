@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://mirror_character"]
+
+[ext_resource type="Script" path="res://scripts/character.gd" id="1_char"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(28, 56)
+
+[node name="Character" type="CharacterBody2D"]
+collision_layer = 1
+collision_mask = 1
+floor_stop_on_slope = true
+floor_max_angle = 0.785398
+script = ExtResource("1_char")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -28)
+shape = SubResource("RectangleShape2D_body")
