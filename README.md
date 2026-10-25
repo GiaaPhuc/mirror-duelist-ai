@@ -5,13 +5,6 @@ Game đối kháng 2D: AI học phong cách chiến đấu của người chơi 
 - **Đặc tả:** [SPEC.md](SPEC.md)
 - **Kế hoạch 10 tuần:** [Mirror-Duelist-Implementation-Plan.md](Mirror-Duelist-Implementation-Plan.md)
 
-## Tuần 1 — trạng thái hiện tại
-
-- Cấu trúc repo theo kế hoạch (`game/`, `ml/`, `data/`, …)
-- Project Godot 4 trong `game/`: arena phẳng, nhân vật placeholder, camera cố định
-- Điều khiển: **A/D** hoặc **←/→**, **W/Space** nhảy
-- Scene smoke test headless: `game/scenes/headless_test.tscn`
-
 ## Chạy game (Godot Editor)
 
 1. Cài [Godot 4.3+](https://godotengine.org/download).
