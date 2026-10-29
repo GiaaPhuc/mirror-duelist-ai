@@ -10,5 +10,5 @@ script = ExtResource("3_test")
 [node name="Arena" parent="." instance=ExtResource("1_arena")]
 
 [node name="Fighter" parent="." instance=ExtResource("2_char")]
-position = Vector2(0, 520)
-keyboard_control_enabled = false
+
+[node name="Opponent" parent="." instance=ExtResource("2_char")]
