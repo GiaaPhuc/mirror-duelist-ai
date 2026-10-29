@@ -47,6 +47,18 @@ session_id,player_id,tick,s0,s1,...,s21,action
 - `player_id`: phân biệt người chơi / bot / mirror.
 - Chỉ ghi khi nhân vật **actionable** (không stunned, không giữa animation đòn).
 
+## Làm rõ luật chiến đấu (Tuần 2, không đổi action/state/CSV)
+
+- Mô phỏng theo tick cố định 60 Hz; hitbox là hình chữ nhật so với hurtbox thân 28×56 px.
+- Frame data (startup/active/recovery tick): light 4/3/8, heavy 12/4/20, kick 8/4/14. Giá trị đầy đủ nằm trong `MOVES` của `game_constants.gd`.
+- Cooldown (tick): heavy 60, kick 40, dash 60, dodge 90. Dash 12 tick; dodge 20 tick, i-frames tick 1–10.
+- Block giảm 80% sát thương, chỉ chặn đòn từ phía trước. Đòn trúng gây hitstun + đẩy lùi.
+- HP 100. Trận 60 s (3600 tick); kết thúc khi KO hoặc hết giờ (so HP, bằng nhau là hoà).
+- Decision: người chơi mỗi tick, bot/model 10 Hz. Walk/block giữ đến quyết định tiếp theo.
+- State s1 = (y bản thân − y đối thủ)/320, dương nghĩa là đối thủ ở cao hơn.
+- "Attacking" (s8–s17) gồm cả light/heavy/kick, dash và dodge.
+- s21: thời gian từ lần có đòn trúng gần nhất, tính cả đòn trúng lẫn bị trúng.
+
 ## Tham số AI (inference)
 
 | Tham số | Mặc định |

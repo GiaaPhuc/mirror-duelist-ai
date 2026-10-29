@@ -26,34 +26,35 @@
 
 Bản ý tưởng gốc tốt về câu chuyện và bài toán AI. Các điểm dưới đây nên chỉnh trước khi bắt tay làm, vì chúng ảnh hưởng trực tiếp đến chất lượng AI và rủi ro dự án.
 
-| # | Vấn đề trong bản gốc | Điều chỉnh đề xuất | Lý do |
-|---|---|---|---|
-| 1 | Action space thiếu di chuyển và "không làm gì" (chỉ có dash) | Mở rộng thành **10 hành động**: `idle, walk_fwd, walk_back, jump, light, heavy, kick, block, dodge, dash_fwd` (dash lùi gộp vào dodge) | Người chơi dành phần lớn thời gian để di chuyển và chờ. Thiếu các hành động này thì AI không học được nhịp điệu và khoảng cách ưa thích, vốn là "chữ ký phong cách" quan trọng nhất |
-| 2 | Log mọi frame quyết định | Cho AI ra quyết định và log ở **10 Hz** (mỗi 6 frame ở 60 FPS) | Ở 60 FPS, hơn 90% frame là "giữ nguyên/idle", dữ liệu lệch cực mạnh và AI sẽ học thành "đứng yên" |
-| 3 | Chỉ log khi người chơi bất kỳ trạng thái nào | **Chỉ log khi nhân vật đang "actionable"** (không bị choáng, không đang giữa animation đòn) | Trong lúc bị khoá, nhãn hành động không phản ánh quyết định thật, tạo nhiễu |
-| 4 | State dùng hướng nhìn trái/phải làm đầu vào | **Mirror hoá state theo góc nhìn bản thân** (dấu khoảng cách là "trước/sau", không phải "trái/phải") | Model học từ người chơi đứng bên trái vẫn dùng được khi AI đứng bên phải. Không cần feature hướng nhìn nữa |
-| 5 | State thiếu trạng thái của chính mình | Thêm one-hot trạng thái bản thân (idle / đang đánh / thủ / choáng / trên không) | Thiếu thông tin này, AI sẽ chọn hành động bất khả thi (ví dụ đấm lúc đang bị choáng) |
-| 6 | Đánh giá chủ yếu bằng người chơi thật | Thêm **3 bot rule-based nguyên mẫu** (Rusher, Turtle, Poker) làm "người chơi giả" | Cho phép sinh dữ liệu hàng loạt và đo win-rate qua hàng trăm trận headless. Người chơi thật dùng cho demo và user study, vì kết quả của họ rất nhiễu |
-| 7 | Inference qua ONNX/Barracuda hoặc server Python | **Xuất trọng số ra JSON, tự viết forward pass trong GDScript** (~40 dòng) | Godot 4 không chạy ONNX có sẵn. MLP 64-64 rất nhỏ nên tự cài đặt đơn giản, không dependency, không độ trễ socket, rủi ro tích hợp gần bằng 0 |
-| 8 | "AI nhanh hơn, ít lỗi hơn" chỉ là ý tưởng | Biến thành tham số: `reaction_delay_ms` và `temperature` | Độ khó chỉnh được, đồng thời trở thành biến thí nghiệm cho báo cáo |
-| 9 | Chưa tính thời gian train trong luồng chơi | Mục tiêu: **chơi xong → bấm 1 nút → train < 60 giây → đấu Mirror** | Đây là điểm ăn tiền khi demo. 5.000 mẫu ở 10 Hz chỉ tương đương khoảng 8 phút chơi |
-| 10 | DAgger chỉ là "nâng cấp nếu còn thời gian" | Dùng **bot làm expert** để chạy DAgger thật | Với bot, ta query được "hành động đúng" ở mọi state, điều không làm được với người thật. Đây là cách duy nhất để thử DAgger một cách khả thi, đồng thời cho câu chuyện cải tiến hay khi bảo vệ |
+| #   | Vấn đề trong bản gốc                                         | Điều chỉnh đề xuất                                                                                                                     | Lý do                                                                                                                                                                                          |
+| --- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Action space thiếu di chuyển và "không làm gì" (chỉ có dash) | Mở rộng thành **10 hành động**: `idle, walk_fwd, walk_back, jump, light, heavy, kick, block, dodge, dash_fwd` (dash lùi gộp vào dodge) | Người chơi dành phần lớn thời gian để di chuyển và chờ. Thiếu các hành động này thì AI không học được nhịp điệu và khoảng cách ưa thích, vốn là "chữ ký phong cách" quan trọng nhất            |
+| 2   | Log mọi frame quyết định                                     | Cho AI ra quyết định và log ở **10 Hz** (mỗi 6 frame ở 60 FPS)                                                                         | Ở 60 FPS, hơn 90% frame là "giữ nguyên/idle", dữ liệu lệch cực mạnh và AI sẽ học thành "đứng yên"                                                                                              |
+| 3   | Chỉ log khi người chơi bất kỳ trạng thái nào                 | **Chỉ log khi nhân vật đang "actionable"** (không bị choáng, không đang giữa animation đòn)                                            | Trong lúc bị khoá, nhãn hành động không phản ánh quyết định thật, tạo nhiễu                                                                                                                    |
+| 4   | State dùng hướng nhìn trái/phải làm đầu vào                  | **Mirror hoá state theo góc nhìn bản thân** (dấu khoảng cách là "trước/sau", không phải "trái/phải")                                   | Model học từ người chơi đứng bên trái vẫn dùng được khi AI đứng bên phải. Không cần feature hướng nhìn nữa                                                                                     |
+| 5   | State thiếu trạng thái của chính mình                        | Thêm one-hot trạng thái bản thân (idle / đang đánh / thủ / choáng / trên không)                                                        | Thiếu thông tin này, AI sẽ chọn hành động bất khả thi (ví dụ đấm lúc đang bị choáng)                                                                                                           |
+| 6   | Đánh giá chủ yếu bằng người chơi thật                        | Thêm **3 bot rule-based nguyên mẫu** (Rusher, Turtle, Poker) làm "người chơi giả"                                                      | Cho phép sinh dữ liệu hàng loạt và đo win-rate qua hàng trăm trận headless. Người chơi thật dùng cho demo và user study, vì kết quả của họ rất nhiễu                                           |
+| 7   | Inference qua ONNX/Barracuda hoặc server Python              | **Xuất trọng số ra JSON, tự viết forward pass trong GDScript** (~40 dòng)                                                              | Godot 4 không chạy ONNX có sẵn. MLP 64-64 rất nhỏ nên tự cài đặt đơn giản, không dependency, không độ trễ socket, rủi ro tích hợp gần bằng 0                                                   |
+| 8   | "AI nhanh hơn, ít lỗi hơn" chỉ là ý tưởng                    | Biến thành tham số: `reaction_delay_ms` và `temperature`                                                                               | Độ khó chỉnh được, đồng thời trở thành biến thí nghiệm cho báo cáo                                                                                                                             |
+| 9   | Chưa tính thời gian train trong luồng chơi                   | Mục tiêu: **chơi xong → bấm 1 nút → train < 60 giây → đấu Mirror**                                                                     | Đây là điểm ăn tiền khi demo. 5.000 mẫu ở 10 Hz chỉ tương đương khoảng 8 phút chơi                                                                                                             |
+| 10  | DAgger chỉ là "nâng cấp nếu còn thời gian"                   | Dùng **bot làm expert** để chạy DAgger thật                                                                                            | Với bot, ta query được "hành động đúng" ở mọi state, điều không làm được với người thật. Đây là cách duy nhất để thử DAgger một cách khả thi, đồng thời cho câu chuyện cải tiến hay khi bảo vệ |
 
 ---
 
 ## 2. Chốt kỹ thuật
 
-| Hạng mục | Quyết định |
-|---|---|
-| Engine | Godot 4.x, GDScript |
-| Train | Python 3.10+, PyTorch (CPU), MLP 2 lớp ẩn 64-64, ReLU, softmax |
-| Dữ liệu | CSV, 1 dòng = 1 quyết định tại 10 Hz |
-| Inference | File JSON chứa trọng số, mean/std chuẩn hoá. Forward pass viết tay trong GDScript |
-| Mô phỏng hàng loạt | Chạy Godot headless (`godot --headless`) với tốc độ tăng (`Engine.time_scale`, physics tick cố định) để chạy 500–1000 trận |
-| Đánh giá/vẽ biểu đồ | Python: pandas, numpy, matplotlib, seaborn |
-| Quản lý mã nguồn | Git + GitHub, commit nhỏ theo tuần, tag mỗi mốc (`v0.1-core`, `v0.2-bots`, ...) |
+| Hạng mục            | Quyết định                                                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Engine              | Godot 4.x, GDScript                                                                                                        |
+| Train               | Python 3.10+, PyTorch (CPU), MLP 2 lớp ẩn 64-64, ReLU, softmax                                                             |
+| Dữ liệu             | CSV, 1 dòng = 1 quyết định tại 10 Hz                                                                                       |
+| Inference           | File JSON chứa trọng số, mean/std chuẩn hoá. Forward pass viết tay trong GDScript                                          |
+| Mô phỏng hàng loạt  | Chạy Godot headless (`godot --headless`) với tốc độ tăng (`Engine.time_scale`, physics tick cố định) để chạy 500–1000 trận |
+| Đánh giá/vẽ biểu đồ | Python: pandas, numpy, matplotlib, seaborn                                                                                 |
+| Quản lý mã nguồn    | Git + GitHub, commit nhỏ theo tuần, tag mỗi mốc (`v0.1-core`, `v0.2-bots`, ...)                                            |
 
 **Nguyên tắc thiết kế quan trọng:** mọi nhân vật được điều khiển qua một interface `Controller` duy nhất. Người chơi, bot, và model đều cắm vào cùng interface này. Nhờ đó:
+
 - Mô phỏng bot vs bot không cần hiển thị.
 - Đổi từ người sang model không phải sửa luật game.
 - Thí nghiệm lặp lại được (cố định random seed).
@@ -64,34 +65,35 @@ Bản ý tưởng gốc tốt về câu chuyện và bài toán AI. Các điểm
 
 ### 3.1. Action space (10 hành động rời rạc)
 
-| ID | Action | Ghi chú |
-|---|---|---|
-| 0 | `idle` | Đứng yên |
-| 1 | `walk_fwd` | Đi về phía đối thủ |
-| 2 | `walk_back` | Đi lùi |
-| 3 | `jump` | Nhảy |
-| 4 | `light` | Đấm nhẹ (nhanh, ít sát thương) |
-| 5 | `heavy` | Đấm mạnh (chậm, nhiều sát thương, có cooldown) |
-| 6 | `kick` | Đá (tầm xa hơn, có cooldown) |
-| 7 | `block` | Thủ |
-| 8 | `dodge` | Né/lướt lùi, có thời gian bất tử ngắn, có cooldown |
-| 9 | `dash_fwd` | Lao tới, có cooldown |
+| ID  | Action      | Ghi chú                                            |
+| --- | ----------- | -------------------------------------------------- |
+| 0   | `idle`      | Đứng yên                                           |
+| 1   | `walk_fwd`  | Đi về phía đối thủ                                 |
+| 2   | `walk_back` | Đi lùi                                             |
+| 3   | `jump`      | Nhảy                                               |
+| 4   | `light`     | Đấm nhẹ (nhanh, ít sát thương)                     |
+| 5   | `heavy`     | Đấm mạnh (chậm, nhiều sát thương, có cooldown)     |
+| 6   | `kick`      | Đá (tầm xa hơn, có cooldown)                       |
+| 7   | `block`     | Thủ                                                |
+| 8   | `dodge`     | Né/lướt lùi, có thời gian bất tử ngắn, có cooldown |
+| 9   | `dash_fwd`  | Lao tới, có cooldown                               |
 
 ### 3.2. State vector (22 chiều, mirror hoá theo góc nhìn bản thân)
 
-| Chỉ số | Nội dung | Số chiều | Chuẩn hoá |
-|---|---|---|---|
-| 0 | Khoảng cách ngang có dấu (dương = đối thủ ở phía trước) | 1 | chia cho độ rộng map |
-| 1 | Chênh lệch độ cao | 1 | chia cho độ cao tối đa |
-| 2–3 | HP bản thân, HP đối thủ | 2 | 0–1 |
-| 4–7 | Cooldown còn lại: heavy, kick, dash, dodge | 4 | 0–1 (phần trăm cooldown) |
-| 8–12 | Trạng thái bản thân (one-hot): idle / attacking / blocking / stunned / airborne | 5 | one-hot |
-| 13–17 | Trạng thái đối thủ (one-hot): cùng 5 loại | 5 | one-hot |
-| 18–19 | Vận tốc ngang: bản thân, đối thủ (theo hướng "tới trước") | 2 | chia cho tốc độ tối đa |
-| 20 | Combo counter | 1 | chia cho 5, cắt ở 1 |
-| 21 | Thời gian kể từ đòn trúng gần nhất | 1 | chia cho 3 giây, cắt ở 1 |
+| Chỉ số | Nội dung                                                                        | Số chiều | Chuẩn hoá                |
+| ------ | ------------------------------------------------------------------------------- | -------- | ------------------------ |
+| 0      | Khoảng cách ngang có dấu (dương = đối thủ ở phía trước)                         | 1        | chia cho độ rộng map     |
+| 1      | Chênh lệch độ cao                                                               | 1        | chia cho độ cao tối đa   |
+| 2–3    | HP bản thân, HP đối thủ                                                         | 2        | 0–1                      |
+| 4–7    | Cooldown còn lại: heavy, kick, dash, dodge                                      | 4        | 0–1 (phần trăm cooldown) |
+| 8–12   | Trạng thái bản thân (one-hot): idle / attacking / blocking / stunned / airborne | 5        | one-hot                  |
+| 13–17  | Trạng thái đối thủ (one-hot): cùng 5 loại                                       | 5        | one-hot                  |
+| 18–19  | Vận tốc ngang: bản thân, đối thủ (theo hướng "tới trước")                       | 2        | chia cho tốc độ tối đa   |
+| 20     | Combo counter                                                                   | 1        | chia cho 5, cắt ở 1      |
+| 21     | Thời gian kể từ đòn trúng gần nhất                                              | 1        | chia cho 3 giây, cắt ở 1 |
 
 **Mở rộng (v2, thử sau khi MVP chạy):**
+
 - One-hot của hành động trước đó (10 chiều) để model bắt được pattern theo chuỗi (ví dụ light → light → heavy).
 - Khoảng cách tới tường (2 chiều) để học thói quen "dồn góc".
 
@@ -112,11 +114,11 @@ session_id, player_id, tick, s0, s1, ..., s21, action
 
 ### 3.5. Tham số độ khó của AI
 
-| Tham số | Mặc định | Ý nghĩa |
-|---|---|---|
-| `reaction_delay_ms` | 100 | Độ trễ phản xạ của AI (người trung bình khoảng 200–250 ms) |
-| `temperature` | 0.7 | Thấp = ổn định, gần argmax. Cao = ngẫu nhiên hơn, giống người hơn |
-| `decision_hz` | 10 | Tần suất ra quyết định |
+| Tham số             | Mặc định | Ý nghĩa                                                           |
+| ------------------- | -------- | ----------------------------------------------------------------- |
+| `reaction_delay_ms` | 100      | Độ trễ phản xạ của AI (người trung bình khoảng 200–250 ms)        |
+| `temperature`       | 0.7      | Thấp = ổn định, gần argmax. Cao = ngẫu nhiên hơn, giống người hơn |
+| `decision_hz`       | 10       | Tần suất ra quyết định                                            |
 
 ---
 
@@ -181,29 +183,35 @@ Mỗi tuần có **mục tiêu**, **công việc**, **sản phẩm bàn giao** v
 
 **Mục tiêu:** có nhân vật chạy mượt và bản spec đóng băng.
 
-- [ ] Tạo repo Git, cấu trúc thư mục như mục 4.1.
-- [ ] Viết `SPEC.md` gồm action space (3.1), state vector (3.2), format CSV (3.3). Sau tuần này **không đổi spec** trừ khi thật sự cần, vì mỗi lần đổi là phải thu thập lại dữ liệu.
-- [ ] Dựng nhân vật: di chuyển ngang, nhảy, trọng lực, một map phẳng có tường hai bên, camera cố định.
-- [ ] Đặt placeholder art (hình chữ nhật có màu) để không mất thời gian vào đồ hoạ.
-- [ ] Học nhanh `godot --headless` và chạy thử một scene ở chế độ này.
+**Trạng thái:** ✅ Đã triển khai và push lên GitHub (`main`, 3 commit Tuần 1). ⏳ Còn xác nhận trên máy dev: ~60 FPS trong Godot Editor và smoke test `godot --headless` (cần cài Godot 4.x).
 
-**Sản phẩm:** repo có `SPEC.md`, nhân vật điều khiển được bằng bàn phím.
-**Done khi:** 60 FPS ổn định, chạy được scene headless không lỗi.
+- [x] Tạo repo Git, cấu trúc thư mục như mục 4.1.
+- [x] Viết `SPEC.md` gồm action space (3.1), state vector (3.2), format CSV (3.3). Sau tuần này **không đổi spec** trừ khi thật sự cần, vì mỗi lần đổi là phải thu thập lại dữ liệu.
+- [x] Dựng nhân vật: di chuyển ngang, nhảy, trọng lực, một map phẳng có tường hai bên, camera cố định.
+- [x] Đặt placeholder art (hình chữ nhật có màu) để không mất thời gian vào đồ hoạ.
+- [x] Học nhanh `godot --headless` và chạy thử một scene ở chế độ này. *(Đã có `game/scenes/headless_test.tscn`, `scripts/run_headless.ps1`; chưa chạy CLI trên máy dev.)*
+
+**Sản phẩm:** repo có `SPEC.md`, nhân vật điều khiển được bằng bàn phím. — **[x] đạt (code + README hướng dẫn F5).**
+**Done khi:**
+- [ ] 60 FPS ổn định *(chưa đo trên máy dev).*
+- [ ] Chạy được scene headless không lỗi *(chưa chạy `run_headless.ps1` sau khi cài Godot).*
 
 ### Tuần 2: Chiến đấu cốt lõi và interface Controller
 
 **Mục tiêu:** hai nhân vật đánh nhau đúng luật, điều khiển qua interface chung.
 
-- [ ] Hitbox/hurtbox cho `light`, `heavy`, `kick` (mỗi đòn có startup, active, recovery frames riêng).
-- [ ] `block` (giảm sát thương), `dodge` (có i-frames), `dash_fwd`.
-- [ ] Trạng thái choáng (hitstun), HP, KO, kết thúc trận (hết HP hoặc hết giờ, so HP).
-- [ ] Cooldown cho `heavy`, `kick`, `dash`, `dodge`.
-- [ ] Thiết kế interface `Controller` với một hàm `decide(state) -> action_id`.
-- [ ] Nhân vật thứ hai điều khiển bằng controller giả (ngẫu nhiên) để test.
-- [ ] `state_encoder.gd`: tạo state vector 22 chiều, có mirror hoá.
+**Trạng thái:** ✅ Đã triển khai code (`character.gd`, `fight_match.gd`, `state_encoder.gd`, controllers, `match_runner.gd`). ⏳ Chưa chạy được trên máy này vì chưa cài Godot: cần chạy `scripts/run_matches.ps1` (100 trận) để xác nhận.
+
+- [x] Hitbox/hurtbox cho `light`, `heavy`, `kick` (mỗi đòn có startup, active, recovery frames riêng).
+- [x] `block` (giảm sát thương), `dodge` (có i-frames), `dash_fwd`.
+- [x] Trạng thái choáng (hitstun), HP, KO, kết thúc trận (hết HP hoặc hết giờ, so HP).
+- [x] Cooldown cho `heavy`, `kick`, `dash`, `dodge`.
+- [x] Thiết kế interface `Controller` với một hàm `decide(state) -> action_id`.
+- [x] Nhân vật thứ hai điều khiển bằng controller giả (ngẫu nhiên) để test.
+- [x] `state_encoder.gd`: tạo state vector 22 chiều, có mirror hoá.
 
 **Sản phẩm:** một trận hoàn chỉnh người vs bot ngẫu nhiên.
-**Done khi:** hai controller ngẫu nhiên đấu nhau 100 trận headless, trận nào cũng kết thúc đúng luật, không treo, không crash.
+**Done khi:** *(chờ chạy `scripts/run_matches.ps1`)* hai controller ngẫu nhiên đấu nhau 100 trận headless, trận nào cũng kết thúc đúng luật, không treo, không crash.
 
 > Đây là tuần quan trọng nhất. Chạy được headless nghĩa là mọi thí nghiệm sau đều tự động hoá được.
 
@@ -335,18 +343,18 @@ Mỗi tuần có **mục tiêu**, **công việc**, **sản phẩm bàn giao** v
 
 ### Bảng tóm tắt lộ trình
 
-| Tuần | Trọng tâm | Mốc quan trọng |
-|---|---|---|
-| 1 | Khung game, SPEC | Spec đóng băng |
-| 2 | Luật chiến đấu, Controller, headless | Bot ngẫu nhiên đấu 100 trận không lỗi |
-| 3 | Bot, logger, smoke test pipeline | GDScript khớp PyTorch |
-| 4 | Dữ liệu + BC baseline | Mirror đầu tiên |
-| 5 | Tích hợp, luồng một nút | Người lạ tự chơi trọn vòng |
-| 6 | Dữ liệu người thật, khảo sát | ≥ 5 người chơi |
-| 7 | Đánh giá định lượng | Learning curve, distinctiveness |
-| 8 | DAgger, ablation | Một cải tiến có số liệu |
-| 9 | Polish, hiệu ứng | Bản build demo |
-| 10 | Báo cáo, demo, đệm | Nộp |
+| Tuần | Trọng tâm                            | Mốc quan trọng                        |
+| ---- | ------------------------------------ | ------------------------------------- |
+| 1    | Khung game, SPEC                     | ✅ Spec + khung game *(chờ verify FPS/headless)* |
+| 2    | Luật chiến đấu, Controller, headless | ✅ Code xong *(chờ chạy 100 trận headless)* |
+| 3    | Bot, logger, smoke test pipeline     | GDScript khớp PyTorch                 |
+| 4    | Dữ liệu + BC baseline                | Mirror đầu tiên                       |
+| 5    | Tích hợp, luồng một nút              | Người lạ tự chơi trọn vòng            |
+| 6    | Dữ liệu người thật, khảo sát         | ≥ 5 người chơi                        |
+| 7    | Đánh giá định lượng                  | Learning curve, distinctiveness       |
+| 8    | DAgger, ablation                     | Một cải tiến có số liệu               |
+| 9    | Polish, hiệu ứng                     | Bản build demo                        |
+| 10   | Báo cáo, demo, đệm                   | Nộp                                   |
 
 ---
 
@@ -354,15 +362,15 @@ Mỗi tuần có **mục tiêu**, **công việc**, **sản phẩm bàn giao** v
 
 ### 6.1. Các chỉ số
 
-| Chỉ số | Cách đo | Output |
-|---|---|---|
-| **Win-rate theo lượng dữ liệu** | Mirror train từ 1k…20k mẫu đấu bot nguồn, 200 trận mỗi cấu hình, 3–5 seed | Đường learning curve có sai số |
-| **Behavioral similarity** | KL-divergence giữa phân phối action của Mirror và nguồn, chia theo nhóm state | Bảng + heatmap |
-| **Action distribution match** | Histogram tần suất action, Mirror vs nguồn, trên cùng bộ trận | Biểu đồ cột cạnh nhau |
-| **Cross-player distinctiveness** | Ma trận N×N KL giữa Mirror_i và dữ liệu của người j | Heatmap, kỳ vọng đường chéo thấp |
-| **Reaction time** | Thời gian từ khi đối thủ bắt đầu đòn đến khi Mirror block/dodge | Box plot so với 200–250 ms |
-| **Compounding error** | Độ lệch hành vi đầu trận vs cuối trận, BC vs DAgger | Biểu đồ đường theo thời gian trận |
-| **Khảo sát chủ quan** | Thang 1–5 từ người chơi thật | Bảng trung bình + nhận xét |
+| Chỉ số                           | Cách đo                                                                       | Output                            |
+| -------------------------------- | ----------------------------------------------------------------------------- | --------------------------------- |
+| **Win-rate theo lượng dữ liệu**  | Mirror train từ 1k…20k mẫu đấu bot nguồn, 200 trận mỗi cấu hình, 3–5 seed     | Đường learning curve có sai số    |
+| **Behavioral similarity**        | KL-divergence giữa phân phối action của Mirror và nguồn, chia theo nhóm state | Bảng + heatmap                    |
+| **Action distribution match**    | Histogram tần suất action, Mirror vs nguồn, trên cùng bộ trận                 | Biểu đồ cột cạnh nhau             |
+| **Cross-player distinctiveness** | Ma trận N×N KL giữa Mirror_i và dữ liệu của người j                           | Heatmap, kỳ vọng đường chéo thấp  |
+| **Reaction time**                | Thời gian từ khi đối thủ bắt đầu đòn đến khi Mirror block/dodge               | Box plot so với 200–250 ms        |
+| **Compounding error**            | Độ lệch hành vi đầu trận vs cuối trận, BC vs DAgger                           | Biểu đồ đường theo thời gian trận |
+| **Khảo sát chủ quan**            | Thang 1–5 từ người chơi thật                                                  | Bảng trung bình + nhận xét        |
 
 ### 6.2. Nguyên tắc để kết quả đáng tin
 
@@ -381,19 +389,20 @@ Mục tiêu của Mirror **không phải thắng 100%**, mà là đủ giống �
 
 ## 7. Quản lý rủi ro & phương án dự phòng
 
-| Rủi ro | Mức độ | Dấu hiệu sớm | Phương án |
-|---|---|---|---|
-| Compounding error của BC thuần: AI "lạc" khỏi phân phối, đứng ngẩn | Cao | Mirror đứng yên hoặc spam một đòn ở tình huống lạ | Rule fallback ở tuần 5; DAgger với bot ở tuần 8; tăng `temperature` nhẹ |
-| Dữ liệu không đủ đa dạng (chỉ một người chơi) | Cao | Mirror các người khác nhau cho hành vi giống nhau | Dùng 3 bot + nhiều người; khuyến khích người chơi đổi chiến thuật giữa các phiên |
-| Mất cân bằng lớp (quá nhiều idle) | Cao | Accuracy cao nhưng AI chỉ đứng yên | Weighted loss, giảm mẫu idle, xem macro-F1 |
-| Sai lệch giữa GDScript và PyTorch | Trung bình | Mirror trong game hành xử khác khi test ở Python | Test khớp số ở tuần 3, so sánh trên cùng input cố định |
-| Chạy headless không ổn định / không đủ nhanh | Trung bình | Trận treo, tốc độ chậm | Test sớm ở tuần 1–2; rút gọn thời lượng trận; nếu cần, cài mô phỏng logic song song bằng Python (chỉ khi bắt buộc) |
-| Gọi Python từ Godot khó trên máy demo | Trung bình | `OS.execute` lỗi trên máy khác | Chuẩn bị model huấn luyện sẵn cho người chơi demo; giữ script train độc lập |
-| Trễ tiến độ game (art, animation) | Trung bình | Tuần 5 chưa xong luật | Dùng placeholder; cắt các tính năng "Could" (mục 8); dùng tuần 10 làm đệm |
-| Người chơi thật khó tìm / ít | Thấp–TB | Tuần 6 chưa đủ 5 người | Bắt đầu hỏi từ tuần 3; mỗi người chỉ cần 10 phút; có thể nhờ qua nhóm lớp |
-| Phạm vi phình to | Cao | Danh sách việc dài ra mỗi tuần | Tuân thủ mục 8, đóng băng spec tuần 1 |
+| Rủi ro                                                             | Mức độ     | Dấu hiệu sớm                                      | Phương án                                                                                                          |
+| ------------------------------------------------------------------ | ---------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Compounding error của BC thuần: AI "lạc" khỏi phân phối, đứng ngẩn | Cao        | Mirror đứng yên hoặc spam một đòn ở tình huống lạ | Rule fallback ở tuần 5; DAgger với bot ở tuần 8; tăng `temperature` nhẹ                                            |
+| Dữ liệu không đủ đa dạng (chỉ một người chơi)                      | Cao        | Mirror các người khác nhau cho hành vi giống nhau | Dùng 3 bot + nhiều người; khuyến khích người chơi đổi chiến thuật giữa các phiên                                   |
+| Mất cân bằng lớp (quá nhiều idle)                                  | Cao        | Accuracy cao nhưng AI chỉ đứng yên                | Weighted loss, giảm mẫu idle, xem macro-F1                                                                         |
+| Sai lệch giữa GDScript và PyTorch                                  | Trung bình | Mirror trong game hành xử khác khi test ở Python  | Test khớp số ở tuần 3, so sánh trên cùng input cố định                                                             |
+| Chạy headless không ổn định / không đủ nhanh                       | Trung bình | Trận treo, tốc độ chậm                            | Test sớm ở tuần 1–2; rút gọn thời lượng trận; nếu cần, cài mô phỏng logic song song bằng Python (chỉ khi bắt buộc) |
+| Gọi Python từ Godot khó trên máy demo                              | Trung bình | `OS.execute` lỗi trên máy khác                    | Chuẩn bị model huấn luyện sẵn cho người chơi demo; giữ script train độc lập                                        |
+| Trễ tiến độ game (art, animation)                                  | Trung bình | Tuần 5 chưa xong luật                             | Dùng placeholder; cắt các tính năng "Could" (mục 8); dùng tuần 10 làm đệm                                          |
+| Người chơi thật khó tìm / ít                                       | Thấp–TB    | Tuần 6 chưa đủ 5 người                            | Bắt đầu hỏi từ tuần 3; mỗi người chỉ cần 10 phút; có thể nhờ qua nhóm lớp                                          |
+| Phạm vi phình to                                                   | Cao        | Danh sách việc dài ra mỗi tuần                    | Tuân thủ mục 8, đóng băng spec tuần 1                                                                              |
 
 **Điểm kiểm tra bắt buộc (go/no-go):**
+
 - Cuối tuần 2: chưa headless được thì dừng mọi việc khác để sửa.
 - Cuối tuần 3: pipeline end-to-end phải chạy, nếu không thì cắt bớt tính năng game.
 - Cuối tuần 5: nếu luồng một nút chưa xong, quay về phương án "train bằng script" và đi tiếp.
@@ -403,6 +412,7 @@ Mục tiêu của Mirror **không phải thắng 100%**, mà là đủ giống �
 ## 8. Phân loại phạm vi (Must / Should / Could)
 
 ### Must (không có thì không có đồ án)
+
 - Game đấu 1v1 với 10 action, luật rõ ràng.
 - Interface Controller, chạy headless.
 - 3 bot nguyên mẫu, data logger.
@@ -412,6 +422,7 @@ Mục tiêu của Mirror **không phải thắng 100%**, mà là đủ giống �
 - Báo cáo + demo chạy được.
 
 ### Should (làm nếu mọi thứ ổn)
+
 - Luồng "một nút" train trong game.
 - DAgger với bot expert, so sánh compounding error.
 - Ablation (temperature, reaction delay, previous_action).
@@ -419,6 +430,7 @@ Mục tiêu của Mirror **không phải thắng 100%**, mà là đủ giống �
 - Màn hình thống kê hậu trận.
 
 ### Could (chỉ khi còn dư thời gian)
+
 - Reward shaping nhẹ.
 - Heatmap explainability thời gian thực.
 - GAIL (rất tốn công, thường không cần thiết).
@@ -443,17 +455,19 @@ Mục tiêu của Mirror **không phải thắng 100%**, mà là đủ giống �
 6. **Hạn chế và hướng mở rộng (1 phút).**
 
 **Phương án dự phòng khi demo:**
+
 - Có sẵn video quay màn hình toàn bộ luồng.
 - Có sẵn 2–3 model Mirror đã train từ trước (bot và chính bạn).
 - Nếu train trong game lỗi: chuyển sang model dựng sẵn, giải thích bằng slide.
 - Kiểm tra máy demo, độ phân giải, bàn phím/tay cầm trước ít nhất một ngày.
 
 **Câu hỏi hội đồng có thể hỏi và hướng trả lời:**
-- *"Sao không dùng RL luôn?"* → Mục tiêu là bắt chước phong cách, không phải tối ưu thắng. RL tối ưu thắng sẽ cho phong cách "máy", không giống người.
-- *"AI có thật sự học phong cách hay chỉ học một pattern chung?"* → Ma trận distinctiveness.
-- *"Dữ liệu ít vậy có đủ không?"* → Learning curve cho thấy từ mức nào thì bão hoà.
-- *"Sao không dùng DAgger với người thật?"* → Không query được expert; DAgger được kiểm chứng trên bot, và giới hạn này được nêu trong báo cáo.
-- *"Có overfit không?"* → Chia train/val theo trận, đo val loss và hành vi khi đấu thật.
+
+- _"Sao không dùng RL luôn?"_ → Mục tiêu là bắt chước phong cách, không phải tối ưu thắng. RL tối ưu thắng sẽ cho phong cách "máy", không giống người.
+- _"AI có thật sự học phong cách hay chỉ học một pattern chung?"_ → Ma trận distinctiveness.
+- _"Dữ liệu ít vậy có đủ không?"_ → Learning curve cho thấy từ mức nào thì bão hoà.
+- _"Sao không dùng DAgger với người thật?"_ → Không query được expert; DAgger được kiểm chứng trên bot, và giới hạn này được nêu trong báo cáo.
+- _"Có overfit không?"_ → Chia train/val theo trận, đo val loss và hành vi khi đấu thật.
 
 ---
 
@@ -634,14 +648,16 @@ func decide(state: PackedFloat32Array) -> int:
 ## 12. Checklist theo dõi tiến độ
 
 ### Nền tảng
-- [ ] `SPEC.md` hoàn chỉnh và đóng băng (T1)
-- [ ] Nhân vật di chuyển/nhảy mượt (T1)
+
+- [x] `SPEC.md` hoàn chỉnh và đóng băng (T1)
+- [x] Nhân vật di chuyển/nhảy mượt (T1) *(code xong; xác nhận cảm quan/FPS trên máy dev)*
 - [ ] Luật chiến đấu đầy đủ (T2)
 - [ ] Interface Controller (T2)
 - [ ] `state_encoder` có mirror hoá (T2)
 - [ ] Chạy headless ổn định (T2)
 
 ### Dữ liệu & mô hình
+
 - [ ] 3 bot nguyên mẫu (T3)
 - [ ] Data logger (T3)
 - [ ] `match_runner` chạy hàng loạt trận (T3)
@@ -651,6 +667,7 @@ func decide(state: PackedFloat32Array) -> int:
 - [ ] Dữ liệu ≥ 5 người thật (T6)
 
 ### Sản phẩm
+
 - [ ] Luồng luyện tập → Mirror → Gương Đấu (T5)
 - [ ] Tham số `reaction_delay`, `temperature` (T5)
 - [ ] Rule fallback (T5)
@@ -659,6 +676,7 @@ func decide(state: PackedFloat32Array) -> int:
 - [ ] Bản build demo (T9)
 
 ### Đánh giá
+
 - [ ] Learning curve (T7)
 - [ ] KL-divergence / similarity (T7)
 - [ ] Ma trận distinctiveness (T7)
@@ -668,6 +686,7 @@ func decide(state: PackedFloat32Array) -> int:
 - [ ] Khảo sát người chơi (T6–T7)
 
 ### Bàn giao
+
 - [ ] Báo cáo hoàn chỉnh (T10)
 - [ ] Slide + video demo dự phòng (T10)
 - [ ] README, hướng dẫn chạy lại (T10)
