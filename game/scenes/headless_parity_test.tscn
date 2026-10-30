@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://mirror_headless_parity"]
+
+[ext_resource type="Script" path="res://scripts/parity_test.gd" id="1_parity"]
+
+[node name="ParityTest" type="Node"]
+script = ExtResource("1_parity")

@@ -10,6 +10,12 @@ var finished: bool = false
 ## Khi finished: {winner: 0|1|-1(hoà), hp_a, hp_b, ticks, reason: "ko"|"timeout"}
 var result: Dictionary = {}
 
+## Tuần 3: cấu hình ghi dữ liệu quyết định (10 Hz, chỉ khi actionable).
+var logger: DataLogger = null
+var session_id: String = "s0"
+var player_ids: Array[String] = ["p1", "p2"]
+var log_fighters: Array[bool] = [false, false]
+
 
 func _init(a: FighterCharacter, b: FighterCharacter, ctrl_a: Controller, ctrl_b: Controller) -> void:
 	fighters.append(a)
@@ -18,6 +24,20 @@ func _init(a: FighterCharacter, b: FighterCharacter, ctrl_a: Controller, ctrl_b:
 	controllers.append(ctrl_b)
 	ctrl_a.fighter = a
 	ctrl_b.fighter = b
+
+
+func configure_logging(
+	data_logger: DataLogger,
+	sid: String,
+	p1_id: String = "p1",
+	p2_id: String = "p2",
+	log_p1: bool = true,
+	log_p2: bool = false
+) -> void:
+	logger = data_logger
+	session_id = sid
+	player_ids = [p1_id, p2_id]
+	log_fighters = [log_p1, log_p2]
 
 
 func reset() -> void:
@@ -33,14 +53,20 @@ func step() -> void:
 		return
 
 	# 1. Quyết định (cả hai nhìn state cùng một thời điểm, tránh lệch thứ tự)
+	var is_log_tick := (tick_count % GameConstants.DECISION_INTERVAL_FRAMES == 0)
 	var decide_now: Array[bool] = [false, false]
+	var actionable: Array[bool] = [false, false]
 	var states: Array[PackedFloat32Array] = []
 	for i in 2:
 		states.append(StateEncoder.encode(fighters[i], fighters[1 - i]))
-		decide_now[i] = controllers[i].every_frame or tick_count % GameConstants.DECISION_INTERVAL_FRAMES == 0
+		actionable[i] = fighters[i].is_actionable()
+		decide_now[i] = actionable[i] and (controllers[i].every_frame or is_log_tick)
 	for i in 2:
 		if decide_now[i]:
-			fighters[i].apply_action(controllers[i].decide(states[i]))
+			var act := controllers[i].decide(states[i])
+			if logger != null and log_fighters[i] and is_log_tick:
+				logger.log_decision(session_id, player_ids[i], tick_count, states[i], act, actionable[i])
+			fighters[i].apply_action(act)
 
 	# 2. Cập nhật nhân vật
 	fighters[0].face_opponent(fighters[1])
