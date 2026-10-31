@@ -30,39 +30,32 @@ func decide_rule(state: PackedFloat32Array) -> int:
 	var cd_dodge := state[7]
 	var opp_attacking := state[14] > 0.5
 
-	# 1. Bị áp sát (< 72px): ưu tiên dodge lùi thoát thân, nếu đang hồi thì lùi hoặc thủ/light
+	# 1. Bị áp sát (< 72px): ưu tiên dodge lùi thoát thân, nếu đang hồi thì thủ/light/lùi
 	if dist_px < 72.0:
-		if cd_dodge <= 0.001 and rng.randf() < 0.80:
+		if cd_dodge <= 0.001:
 			return GameConstants.ACTION_DODGE
-		if opp_attacking and rng.randf() < 0.55:
+		if opp_attacking:
 			return GameConstants.ACTION_BLOCK
-		if rng.randf() < 0.65:
-			return GameConstants.ACTION_WALK_BACK
-		return GameConstants.ACTION_LIGHT
+		if dist_px < 50.0:
+			return GameConstants.ACTION_LIGHT
+		return GameConstants.ACTION_WALK_BACK
 
 	# 2. Tầm rỉa đòn lý tưởng của kick (72..102px — ngoài tầm light của đối thủ):
 	#    Nếu kick sẵn sàng thì đá, nếu vừa đá xong (cd_kick > 0) thì lùi ngay.
 	if dist_px <= 102.0:
 		if cd_kick <= 0.001:
-			if rng.randf() < 0.82:
-				return GameConstants.ACTION_KICK
-			return GameConstants.ACTION_WALK_BACK
-		# Đang hồi chiêu kick -> rút lùi giữ khoảng cách
-		if rng.randf() < 0.78:
-			return GameConstants.ACTION_WALK_BACK
-		return GameConstants.ACTION_BLOCK if opp_attacking else GameConstants.ACTION_IDLE
+			return GameConstants.ACTION_KICK
+		if opp_attacking:
+			return GameConstants.ACTION_BLOCK
+		return GameConstants.ACTION_WALK_BACK
 
 	# 3. Hơi xa hơn tầm kick (102..145px): nếu vừa đá xong thì lùi/chờ, nếu kick sẵn sàng thì bước vào
 	if dist_px <= 145.0:
 		if cd_kick > 0.25:
-			if rng.randf() < 0.60:
-				return GameConstants.ACTION_WALK_BACK
-			return GameConstants.ACTION_IDLE
-		if rng.randf() < 0.78:
+			return GameConstants.ACTION_WALK_BACK
+		if cd_kick <= 0.001:
 			return GameConstants.ACTION_WALK_FWD
 		return GameConstants.ACTION_IDLE
 
 	# 4. Quá xa (> 145px): tiến vào khoảng cách trung bình
-	if rng.randf() < 0.85:
-		return GameConstants.ACTION_WALK_FWD
-	return GameConstants.ACTION_IDLE
+	return GameConstants.ACTION_WALK_FWD

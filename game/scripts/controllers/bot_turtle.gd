@@ -50,9 +50,9 @@ func decide_rule(state: PackedFloat32Array) -> int:
 		if dist_px <= 66.0:
 			return GameConstants.ACTION_LIGHT
 
-	# 2. Đối thủ đang tung đòn ở ngoài tầm light (đánh hụt trước mặt): trả đòn bằng kick/heavy
+	# 2. Đối thủ đang tung đòn ở ngoài tầm light (đánh hụt trước mặt): trả đòn bằng kick
 	if opp_attacking and dist_px > 68.0 and dist_px <= 98.0:
-		if cd_kick <= 0.001 and rng.randf() < 0.70:
+		if cd_kick <= 0.001:
 			return GameConstants.ACTION_KICK
 		return GameConstants.ACTION_BLOCK
 
@@ -60,24 +60,23 @@ func decide_rule(state: PackedFloat32Array) -> int:
 	if (opp_attacking or opp_vel < -0.25) and dist_px <= 135.0:
 		return GameConstants.ACTION_BLOCK
 
-	# 4. Bị áp sát quá gần (<= 74px): ưu tiên block hoặc dodge lùi, thỉnh thoảng đấm nhẹ đẩy ra
+	# 4. Bị áp sát quá gần (<= 74px): ưu tiên dodge lùi khi quá sát, đấm nhẹ đẩy ra sau khi đỡ, hoặc thủ
 	if dist_px <= 74.0:
-		var r := rng.randf()
-		if r < 0.65:
-			return GameConstants.ACTION_BLOCK
-		if r < 0.85 and cd_dodge <= 0.001:
+		if cd_dodge <= 0.001 and dist_px <= 54.0:
 			return GameConstants.ACTION_DODGE
-		return GameConstants.ACTION_LIGHT
-
-	# 5. Khoảng cách trung bình (74..175px): lùi để kéo giãn khoảng cách hoặc thủ
-	if dist_px < 175.0:
-		if rng.randf() < 0.65:
-			return GameConstants.ACTION_WALK_BACK
+		if me_blocking and recent_hit_norm < 0.20:
+			return GameConstants.ACTION_LIGHT
 		return GameConstants.ACTION_BLOCK
 
+	# 5. Khoảng cách trung bình (74..175px): lùi để kéo giãn khoảng cách (hoặc thủ nếu đối phương đang lao tới)
+	if dist_px < 175.0:
+		if opp_vel < -0.10 or opp_attacking:
+			return GameConstants.ACTION_BLOCK
+		return GameConstants.ACTION_WALK_BACK
+
 	# 6. Đã ở khoảng cách xa (>= 175px): giữ vị trí, thủ chờ đối phương tiến vào
-	if dist_px > 260.0 and rng.randf() < 0.25:
+	if dist_px > 290.0:
 		return GameConstants.ACTION_WALK_FWD
-	if rng.randf() < 0.60:
+	if opp_vel < -0.05 or recent_hit_norm < 0.60:
 		return GameConstants.ACTION_BLOCK
 	return GameConstants.ACTION_IDLE

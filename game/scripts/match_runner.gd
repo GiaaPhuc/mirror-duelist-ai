@@ -4,10 +4,10 @@ extends Node
 ##
 ## Ví dụ:
 ##   godot --headless --path game --scene res://scenes/headless_matches.tscn -- \
-##     --p1=rusher --p2=turtle --matches=500 --results-csv=data/raw/matches.csv --log-csv=data/raw/rusher.csv
+##     --p1=rusher --p2=rotate --matches=500 --results-csv=data/raw/matches.csv --log-csv=data/raw/rusher.csv
 
 const DEFAULT_MATCHES := 100
-const ROTATE_POOL: PackedStringArray = ["rusher", "turtle", "poker"]
+const ROTATE_POOL: PackedStringArray = ["rusher", "turtle", "poker", "random"]
 
 
 func _ready() -> void:
