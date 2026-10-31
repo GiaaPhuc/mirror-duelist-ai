@@ -1,11 +1,11 @@
 """Behavior Cloning trainer for Mirror Duelist (MLP 22 -> 64 -> 64 -> 10).
 
-Features (per SPEC.md & Implementation Plan Section 11.1):
+Features (per SPEC.md & Implementation Plan Section 11.1 & Week 4):
 - Session-grouped train/val split (80/20) to prevent frame leakage
 - Train-split feature standardization (mean, std)
 - Inverse-sqrt class frequency weighted cross-entropy
 - Adam optimizer + early stopping on validation loss
-- Exports `data/models/best.pt`, `data/models/mirror.json`, and `data/models/test_vectors.json`
+- Exports `best.pt`, `mirror.json` (with mean/std + layers), and `test_vectors.json`
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ def _train_torch(
     lr: float,
     patience: int,
     seed: int,
-) -> tuple[list[dict[str, list]], float, np.ndarray, dict[str, Any]]:
+) -> tuple[list[dict[str, list]], float, np.ndarray, dict[str, Any], int, int]:
     torch.manual_seed(seed)
     np.random.seed(seed)
 
@@ -61,9 +61,12 @@ def _train_torch(
 
     best_loss = float("inf")
     best_state: dict[str, Any] | None = None
+    best_epoch = 1
+    epochs_ran = 0
     wait = 0
 
-    for _epoch in range(epochs):
+    for epoch in range(epochs):
+        epochs_ran = epoch + 1
         model.train()
         perm = torch.randperm(len(Xtr_t))
         for i in range(0, len(perm), batch_size):
@@ -81,6 +84,7 @@ def _train_torch(
         if val_loss < best_loss - 1e-6:
             best_loss = val_loss
             best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+            best_epoch = epochs_ran
             wait = 0
         else:
             wait += 1
@@ -95,7 +99,7 @@ def _train_torch(
         val_preds = model(Xva_t).argmax(dim=1).cpu().numpy()
 
     layers = extract_torch_layers(model)
-    return layers, best_loss, val_preds, model.state_dict()
+    return layers, best_loss, val_preds, model.state_dict(), epochs_ran, best_epoch
 
 
 def _train_numpy(
@@ -109,7 +113,7 @@ def _train_numpy(
     lr: float,
     patience: int,
     seed: int,
-) -> tuple[list[dict[str, list]], float, np.ndarray]:
+) -> tuple[list[dict[str, list]], float, np.ndarray, int, int]:
     rng = np.random.default_rng(seed)
     model = NumpyMLP(N_STATE, 64, N_ACTIONS, seed=seed)
 
@@ -122,9 +126,12 @@ def _train_numpy(
 
     best_loss = float("inf")
     best_state = model.get_state()
+    best_epoch = 1
+    epochs_ran = 0
     wait = 0
 
-    for _epoch in range(epochs):
+    for epoch in range(epochs):
+        epochs_ran = epoch + 1
         perm = rng.permutation(len(Xtr))
         for i in range(0, len(perm), batch_size):
             idx = perm[i : i + batch_size]
@@ -149,6 +156,7 @@ def _train_numpy(
         if val_loss < best_loss - 1e-6:
             best_loss = val_loss
             best_state = model.get_state()
+            best_epoch = epochs_ran
             wait = 0
         else:
             wait += 1
@@ -157,7 +165,7 @@ def _train_numpy(
 
     model.set_state(best_state)
     val_preds = model.forward(Xva).argmax(axis=1)
-    return model.to_layers_list(), best_loss, val_preds
+    return model.to_layers_list(), best_loss, val_preds, epochs_ran, best_epoch
 
 
 def train_pipeline(
@@ -186,7 +194,7 @@ def train_pipeline(
     ckpt_file.parent.mkdir(parents=True, exist_ok=True)
 
     if HAS_TORCH:
-        layers, best_val_loss, val_preds, state_dict = _train_torch(
+        layers, best_val_loss, val_preds, state_dict, epochs_ran, best_epoch = _train_torch(
             Xtr, ytr, Xva, yva, w, epochs, batch_size, lr, patience, seed
         )
         torch.save(
@@ -200,7 +208,7 @@ def train_pipeline(
         )
         backend = "pytorch"
     else:
-        layers, best_val_loss, val_preds = _train_numpy(
+        layers, best_val_loss, val_preds, epochs_ran, best_epoch = _train_numpy(
             Xtr, ytr, Xva, yva, w, epochs, batch_size, lr, patience, seed
         )
         ckpt_file.write_text(
@@ -223,14 +231,25 @@ def train_pipeline(
 
     return {
         "backend": backend,
+        "data_path": str(data_path),
         "rows_total": len(X),
         "rows_train": len(Xtr),
         "rows_val": len(Xva),
         "sessions_total": int(len(np.unique(groups))),
+        "sessions_train": int(len(np.unique(groups[tr_idx]))),
+        "sessions_val": int(len(np.unique(groups[va_idx]))),
+        "epochs_ran": epochs_ran,
+        "best_epoch": best_epoch,
         "val_loss": best_val_loss,
         "val_acc": metrics["accuracy"],
         "val_macro_f1": metrics["macro_f1"],
+        "val_active_macro_f1": metrics["active_macro_f1"],
+        "val_weighted_f1": metrics["weighted_f1"],
         "majority_acc": metrics["majority_acc"],
+        "majority_class": metrics["majority_class"],
+        "majority_action": metrics["majority_action"],
+        "per_class": metrics["per_class"],
+        "class_weights": [round(float(v), 4) for v in w.tolist()],
         "max_abs_err": export_info["max_abs_err"],
         "elapsed_s": elapsed,
         "model_path": str(out_model_path),
@@ -245,6 +264,7 @@ def main() -> None:
     parser.add_argument("--out-model", type=str, default="data/models/mirror.json")
     parser.add_argument("--out-ckpt", type=str, default="data/models/best.pt")
     parser.add_argument("--out-vectors", type=str, default="data/models/test_vectors.json")
+    parser.add_argument("--summary-json", type=str, default="", help="Optional path to save training metrics JSON")
     parser.add_argument("--epochs", type=int, default=120)
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--lr", type=float, default=1e-3)
@@ -263,11 +283,18 @@ def main() -> None:
         patience=args.patience,
         seed=args.seed,
     )
+    if args.summary_json:
+        summary_path = Path(args.summary_json)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        summary_path.write_text(json.dumps(res, indent=2, ensure_ascii=False), encoding="utf-8")
+
     print(
         f"TRAIN_OK backend={res['backend']} rows={res['rows_total']} "
-        f"(train={res['rows_train']}, val={res['rows_val']}, sessions={res['sessions_total']}) "
+        f"(train={res['rows_train']}/{res['sessions_train']}s, val={res['rows_val']}/{res['sessions_val']}s) "
+        f"best_ep={res['best_epoch']}/{res['epochs_ran']} "
         f"val_loss={res['val_loss']:.4f} val_acc={res['val_acc']:.4f} "
-        f"macro_f1={res['val_macro_f1']:.4f} maj_acc={res['majority_acc']:.4f} "
+        f"macro_f1={res['val_macro_f1']:.4f} active_f1={res['val_active_macro_f1']:.4f} "
+        f"maj_acc={res['majority_acc']:.4f}({res['majority_action']}) "
         f"parity_max_err={res['max_abs_err']:.8f} time={res['elapsed_s']:.2f}s"
     )
 

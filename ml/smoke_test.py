@@ -1,4 +1,4 @@
-"""End-to-end Week 3 smoke test & parity verification.
+"""End-to-end Week 3 smoke test & parity verification (also shared simulation core for Week 4+).
 
 1. Generates >= 1,000 actionable 10 Hz decision rows (following SPEC.md & GDScript combat rules)
    if `data/raw/rusher.csv` does not yet exist from Godot headless.
@@ -16,6 +16,7 @@ import json
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Callable
 
 import numpy as np
 
@@ -246,31 +247,25 @@ def decide_bot(bot_name: str, state: np.ndarray, rng: np.random.Generator, epsil
     opp_blocking = state[15] > 0.5
     opp_stunned = state[16] > 0.5
     opp_vel = state[19]
+    my_combo = state[20]
     recent_hit = state[21]
 
     if bot_name == "rusher":
         if dist_px > 92.0:
-            if cd_dash <= 0.001 and dist_px <= 280.0 and rng.random() < 0.75:
+            if cd_dash <= 0.001 and dist_px <= 280.0:
                 return 9
             return 1
         if dist_px > 66.0:
-            if cd_dash <= 0.001 and rng.random() < 0.50:
+            if cd_dash <= 0.001:
                 return 9
-            if cd_kick <= 0.001 and rng.random() < 0.25:
+            if cd_kick <= 0.001 and dist_px >= 76.0:
                 return 6
             return 1
-        if opp_stunned and cd_heavy <= 0.001 and rng.random() < 0.65:
+        if (opp_stunned or opp_blocking or my_combo >= 0.2) and cd_heavy <= 0.001:
             return 5
-        if opp_blocking and cd_heavy <= 0.001 and rng.random() < 0.55:
-            return 5
-        if opp_attacking and rng.random() < 0.08:
+        if opp_attacking and recent_hit < 0.08:
             return 7
-        r = rng.random()
-        if r < 0.76:
-            return 4
-        if r < 0.90 and cd_heavy <= 0.001:
-            return 5
-        return 1
+        return 4
 
     if bot_name == "turtle":
         just_blocked = me_blocking and recent_hit < 0.12 and not opp_attacking
@@ -282,40 +277,49 @@ def decide_bot(bot_name: str, state: np.ndarray, rng: np.random.Generator, epsil
             if dist_px <= 66.0:
                 return 4
         if opp_attacking and 68.0 < dist_px <= 98.0:
-            if cd_kick <= 0.001 and rng.random() < 0.70:
+            if cd_kick <= 0.001:
                 return 6
             return 7
         if (opp_attacking or opp_vel < -0.25) and dist_px <= 135.0:
             return 7
         if dist_px <= 74.0:
-            r = rng.random()
-            if r < 0.65:
-                return 7
-            if r < 0.85 and cd_dodge <= 0.001:
+            if cd_dodge <= 0.001 and dist_px <= 54.0:
                 return 8
-            return 4
+            if me_blocking and recent_hit < 0.20:
+                return 4
+            return 7
         if dist_px < 175.0:
-            return 2 if rng.random() < 0.65 else 7
-        if dist_px > 260.0 and rng.random() < 0.25:
+            if opp_vel < -0.10 or opp_attacking:
+                return 7
+            return 2
+        if dist_px > 290.0:
             return 1
-        return 7 if rng.random() < 0.60 else 0
+        if opp_vel < -0.05 or recent_hit < 0.60:
+            return 7
+        return 0
 
     if bot_name == "poker":
         if dist_px < 72.0:
-            if cd_dodge <= 0.001 and rng.random() < 0.80:
+            if cd_dodge <= 0.001:
                 return 8
-            if opp_attacking and rng.random() < 0.55:
+            if opp_attacking:
                 return 7
-            return 2 if rng.random() < 0.65 else 4
+            if dist_px < 50.0:
+                return 4
+            return 2
         if dist_px <= 102.0:
             if cd_kick <= 0.001:
-                return 6 if rng.random() < 0.82 else 2
-            return 2 if rng.random() < 0.78 else (7 if opp_attacking else 0)
+                return 6
+            if opp_attacking:
+                return 7
+            return 2
         if dist_px <= 145.0:
             if cd_kick > 0.25:
-                return 2 if rng.random() < 0.60 else 0
-            return 1 if rng.random() < 0.78 else 0
-        return 1 if rng.random() < 0.85 else 0
+                return 2
+            if cd_kick <= 0.001:
+                return 1
+            return 0
+        return 1
 
     return int(rng.integers(0, N_ACTIONS))
 
@@ -325,11 +329,12 @@ def _rects_intersect(ax: float, ay: float, aw: float, ah: float, bx: float, by: 
 
 
 def run_sim_match(
-    p1_fn,
-    p2_fn,
+    p1_fn: Callable[[np.ndarray], int],
+    p2_fn: Callable[[np.ndarray], int],
     session_id: str,
     p1_id: str,
     log_rows: list[list] | None = None,
+    step_hook: Callable[[int, SimFighter, SimFighter, np.ndarray, np.ndarray, int | None, int | None], None] | None = None,
 ) -> dict:
     a, b = SimFighter(), SimFighter()
     a.reset(-START_X, 1)
@@ -342,18 +347,20 @@ def run_sim_match(
             s0 = encode_state(a, b)
             s1 = encode_state(b, a)
             states = [s0, s1]
-            acts = [0, 0]
+            acts: list[int | None] = [None, None]
             act_flags = [a.is_actionable(), b.is_actionable()]
             for i in range(2):
                 if act_flags[i]:
-                    acts[i] = fns[i](states[i])
+                    acts[i] = int(fns[i](states[i]))
                     if i == 0 and log_rows is not None:
                         log_rows.append(
                             [session_id, p1_id, tick, *[f"{v:.6f}" for v in states[i]], acts[i]]
                         )
+            if step_hook is not None:
+                step_hook(tick, a, b, s0, s1, acts[0], acts[1])
             for i in range(2):
-                if act_flags[i]:
-                    fighters[i].apply_action(acts[i])
+                if act_flags[i] and acts[i] is not None:
+                    fighters[i].apply_action(int(acts[i]))
 
         for i in range(2):
             me, opp = fighters[i], fighters[1 - i]
@@ -402,7 +409,7 @@ def run_sim_match(
                 dfn.intent = 0
                 dfn.attack_connected = True
 
-        # Separate
+        # Separate (synced with fight_match.gd::_separate)
         if abs(a.y - b.y) < BODY_H:
             dx = b.x - a.x
             overlap = BODY_W - abs(dx)
@@ -412,6 +419,14 @@ def run_sim_match(
                 b.x += d * overlap * 0.5
                 a.clamp_to_arena()
                 b.clamp_to_arena()
+                rem = BODY_W - abs(b.x - a.x)
+                if rem > 0.0:
+                    b.x += d * rem
+                    b.clamp_to_arena()
+                    rem = BODY_W - abs(b.x - a.x)
+                    if rem > 0.0:
+                        a.x -= d * rem
+                        a.clamp_to_arena()
 
         for i in range(2):
             if fighters[1 - i].state != "STUN":
@@ -431,20 +446,21 @@ def generate_bot_dataset(
     results_csv: str | Path | None = None,
     min_rows: int = 1200,
     seed: int = 1,
+    opponents: tuple[str, ...] = ("turtle", "poker", "rusher", "random"),
+    epsilon: float = 0.12,
 ) -> tuple[int, int]:
     """Generate >= min_rows of 10 Hz actionable decisions for `bot_name` vs rotating opponents."""
     rng = np.random.default_rng(seed)
-    opponents = ["turtle", "poker", "rusher"]
     rows: list[list] = []
     match_records: list[list] = []
     match_idx = 0
 
     while len(rows) < min_rows:
         opp_name = opponents[match_idx % len(opponents)]
-        sid = f"smoke_{bot_name}_vs_{opp_name}_{match_idx:04d}"
+        sid = f"sess_{bot_name}_vs_{opp_name}_{match_idx:04d}"
         res = run_sim_match(
-            lambda s, b=bot_name: decide_bot(b, s, rng, 0.12),
-            lambda s, o=opp_name: decide_bot(o, s, rng, 0.12),
+            lambda s, b=bot_name: decide_bot(b, s, rng, epsilon),
+            lambda s, o=opp_name: decide_bot(o, s, rng, epsilon),
             session_id=sid,
             p1_id=bot_name,
             log_rows=rows,
