@@ -1,0 +1,5 @@
+target,rows_total,sessions_total,rows_train,rows_val,majority_action,majority_acc,val_acc,acc_gain_over_majority,val_macro_f1,val_active_macro_f1,val_weighted_f1,val_loss,parity_max_abs_err,live_mirror_winrate,live_kl_divergence,live_mean_dist_px,corner_walk_back_rate,out_of_range_attack_rate,cooldown_noop_rate
+rusher,10522,249,8487,2035,light,0.3558,0.8536,0.4978,0.4531,0.8437,0.8329,1.1941,0.00001526,0.6800,0.0414,61.9,0.0000,0.0003,0.0023
+turtle,10761,36,8914,1847,idle,0.4099,0.8073,0.3974,0.4178,0.7252,0.7847,1.3133,0.00000381,0.1200,0.0170,214.7,0.1897,0.0423,0.0101
+poker,10551,120,8379,2172,walk_fwd,0.3191,0.8435,0.5244,0.5776,0.8251,0.8282,1.1055,0.00000763,0.5700,0.0101,113.4,0.2362,0.0103,0.0081
+human_self,3570,15,2824,746,block,0.3190,0.8552,0.5362,0.6467,0.8256,0.8477,0.9685,0.00002289,,,,,,

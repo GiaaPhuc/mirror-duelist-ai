@@ -1,7 +1,7 @@
 class_name BotRusher
 extends Controller
 ## Bot nguyên mẫu 1 — Rusher: luôn tiến lên áp sát, ưu tiên `light` + `dash_fwd`,
-## dùng `heavy` khi đối thủ choáng/thủ để dứt điểm, rất ít thủ.
+## dùng `heavy` khi đối thủ choáng/thủ hoặc nối combo để dứt điểm, rất ít thủ.
 ## Có xác suất `epsilon` (mặc định 12%) chọn hành động ngẫu nhiên để dữ liệu đa dạng.
 
 var rng := RandomNumberGenerator.new()
@@ -32,32 +32,26 @@ func decide_rule(state: PackedFloat32Array) -> int:
 	var opp_attacking := state[14] > 0.5
 	var opp_blocking := state[15] > 0.5
 	var opp_stunned := state[16] > 0.5
+	var my_combo := state[20]
+	var recent_hit := state[21]
 
 	# Tầm xa / trung-xa: lao tới bằng dash_fwd nếu hồi chiêu, không thì đi bộ tiến lên
 	if dist_px > 92.0:
-		if cd_dash <= 0.001 and dist_px <= 280.0 and rng.randf() < 0.75:
+		if cd_dash <= 0.001 and dist_px <= 280.0:
 			return GameConstants.ACTION_DASH_FWD
 		return GameConstants.ACTION_WALK_FWD
 
 	# Tầm nhỡ (ngoài tầm light 68px nhưng trong tầm áp sát): dash hoặc kick hoặc tiến tiếp
 	if dist_px > 66.0:
-		if cd_dash <= 0.001 and rng.randf() < 0.50:
+		if cd_dash <= 0.001:
 			return GameConstants.ACTION_DASH_FWD
-		if cd_kick <= 0.001 and rng.randf() < 0.25:
+		if cd_kick <= 0.001 and dist_px >= 76.0:
 			return GameConstants.ACTION_KICK
 		return GameConstants.ACTION_WALK_FWD
 
-	# Tầm cận chiến (<= 66px): ưu tiên đấm nhẹ liên hoàn, xen heavy khi đối thủ hở/thủ
-	if opp_stunned and cd_heavy <= 0.001 and rng.randf() < 0.65:
+	# Tầm cận chiến (<= 66px): ưu tiên đấm nhẹ liên hoàn, xen heavy khi đối thủ hở/thủ hoặc nối combo
+	if (opp_stunned or opp_blocking or my_combo >= 0.2) and cd_heavy <= 0.001:
 		return GameConstants.ACTION_HEAVY
-	if opp_blocking and cd_heavy <= 0.001 and rng.randf() < 0.55:
-		return GameConstants.ACTION_HEAVY
-	if opp_attacking and rng.randf() < 0.08:
+	if opp_attacking and recent_hit < 0.08:
 		return GameConstants.ACTION_BLOCK
-
-	var roll := rng.randf()
-	if roll < 0.76:
-		return GameConstants.ACTION_LIGHT
-	if roll < 0.90 and cd_heavy <= 0.001:
-		return GameConstants.ACTION_HEAVY
-	return GameConstants.ACTION_WALK_FWD
+	return GameConstants.ACTION_LIGHT

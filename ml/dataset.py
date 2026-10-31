@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 import numpy as np
 import pandas as pd
@@ -84,7 +84,8 @@ def split_by_session(
 
         gss = GroupShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
         tr_idx, va_idx = next(gss.split(X, y, groups))
-        return tr_idx.astype(np.int64), va_idx.astype(np.int64)
+        tr_idx = tr_idx.astype(np.int64)
+        va_idx = va_idx.astype(np.int64)
     except ImportError:
         rng = np.random.default_rng(random_state)
         perm_groups = rng.permutation(unique_groups)
@@ -93,7 +94,10 @@ def split_by_session(
         is_val = np.array([g in val_groups for g in groups], dtype=bool)
         tr_idx = np.flatnonzero(~is_val).astype(np.int64)
         va_idx = np.flatnonzero(is_val).astype(np.int64)
-        return tr_idx, va_idx
+
+    # Guarantee zero session leakage between train and val
+    assert set(groups[tr_idx]).isdisjoint(set(groups[va_idx])), "Session leakage detected between train and val!"
+    return tr_idx, va_idx
 
 
 def compute_norm_stats(X_train: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -116,29 +120,74 @@ def compute_class_weights(y_train: np.ndarray, n_actions: int = N_ACTIONS) -> np
     return w.astype(np.float32)
 
 
-def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, n_actions: int = N_ACTIONS) -> dict[str, float]:
-    """Compute accuracy, macro-F1 (across active classes), and majority-class baseline accuracy."""
-    if len(y_true) == 0:
-        return {"accuracy": 0.0, "macro_f1": 0.0, "majority_acc": 0.0}
+def compute_metrics(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    n_actions: int = N_ACTIONS,
+    active_min_freq: float = 0.025,
+) -> dict[str, Any]:
+    """Compute accuracy, macro-F1, active-class macro-F1, weighted-F1, majority baseline, and per-class stats."""
+    n_total = len(y_true)
+    if n_total == 0:
+        return {
+            "accuracy": 0.0,
+            "macro_f1": 0.0,
+            "active_macro_f1": 0.0,
+            "weighted_f1": 0.0,
+            "majority_acc": 0.0,
+            "majority_class": 0,
+            "majority_action": ACTION_NAMES[0],
+            "per_class": {},
+        }
 
     acc = float((y_true == y_pred).mean())
     counts = np.bincount(y_true, minlength=n_actions)
-    majority_acc = float(counts.max() / len(y_true))
+    maj_cls = int(counts.argmax())
+    majority_acc = float(counts[maj_cls] / n_total)
 
     f1_list: list[float] = []
+    active_f1_list: list[float] = []
+    weighted_f1_sum = 0.0
+    per_class: dict[str, dict[str, float | int]] = {}
+
     for c in range(n_actions):
         tp = int(((y_true == c) & (y_pred == c)).sum())
         fp = int(((y_true != c) & (y_pred == c)).sum())
         fn = int(((y_true == c) & (y_pred != c)).sum())
-        if tp + fp + fn == 0:
-            continue
+        support = int(counts[c])
+        freq = float(support / n_total)
+        prec = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
+        rec = float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0
         denom = 2 * tp + fp + fn
         f1 = (2.0 * tp / denom) if denom > 0 else 0.0
-        f1_list.append(f1)
+
+        name = ACTION_NAMES[c] if c < len(ACTION_NAMES) else f"a{c}"
+        per_class[name] = {
+            "id": c,
+            "support": support,
+            "freq": round(freq, 4),
+            "precision": round(prec, 4),
+            "recall": round(rec, 4),
+            "f1": round(f1, 4),
+        }
+
+        if tp + fp + fn > 0:
+            f1_list.append(f1)
+        if freq >= active_min_freq:
+            active_f1_list.append(f1)
+        weighted_f1_sum += f1 * support
 
     macro_f1 = float(np.mean(f1_list)) if f1_list else 0.0
+    active_macro_f1 = float(np.mean(active_f1_list)) if active_f1_list else macro_f1
+    weighted_f1 = float(weighted_f1_sum / n_total)
+
     return {
         "accuracy": acc,
         "macro_f1": macro_f1,
+        "active_macro_f1": active_macro_f1,
+        "weighted_f1": weighted_f1,
         "majority_acc": majority_acc,
+        "majority_class": maj_cls,
+        "majority_action": ACTION_NAMES[maj_cls] if maj_cls < len(ACTION_NAMES) else str(maj_cls),
+        "per_class": per_class,
     }
