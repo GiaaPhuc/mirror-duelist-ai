@@ -1,0 +1,1418 @@
+{
+  "elapsed_s": 105.85,
+  "training": {
+    "rusher": {
+      "backend": "numpy-fallback",
+      "data_path": "data\\raw\\rusher.csv",
+      "rows_total": 10522,
+      "rows_train": 8487,
+      "rows_val": 2035,
+      "sessions_total": 249,
+      "sessions_train": 199,
+      "sessions_val": 50,
+      "epochs_ran": 62,
+      "best_epoch": 47,
+      "val_loss": 1.194141149520874,
+      "val_acc": 0.8535626535626536,
+      "val_macro_f1": 0.45312022726969925,
+      "val_active_macro_f1": 0.8437404545393985,
+      "val_weighted_f1": 0.83293389658811,
+      "majority_acc": 0.35577395577395576,
+      "majority_class": 4,
+      "majority_action": "light",
+      "per_class": {
+        "idle": {
+          "id": 0,
+          "support": 17,
+          "freq": 0.0084,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "walk_fwd": {
+          "id": 1,
+          "support": 301,
+          "freq": 0.1479,
+          "precision": 0.8419,
+          "recall": 0.7608,
+          "f1": 0.7993
+        },
+        "walk_back": {
+          "id": 2,
+          "support": 27,
+          "freq": 0.0133,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "jump": {
+          "id": 3,
+          "support": 17,
+          "freq": 0.0084,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "light": {
+          "id": 4,
+          "support": 724,
+          "freq": 0.3558,
+          "precision": 0.873,
+          "recall": 0.9779,
+          "f1": 0.9225
+        },
+        "heavy": {
+          "id": 5,
+          "support": 338,
+          "freq": 0.1661,
+          "precision": 0.8883,
+          "recall": 0.9172,
+          "f1": 0.9025
+        },
+        "kick": {
+          "id": 6,
+          "support": 117,
+          "freq": 0.0575,
+          "precision": 0.6744,
+          "recall": 0.7436,
+          "f1": 0.7073
+        },
+        "block": {
+          "id": 7,
+          "support": 44,
+          "freq": 0.0216,
+          "precision": 0.5,
+          "recall": 0.2273,
+          "f1": 0.3125
+        },
+        "dodge": {
+          "id": 8,
+          "support": 16,
+          "freq": 0.0079,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "dash_fwd": {
+          "id": 9,
+          "support": 434,
+          "freq": 0.2133,
+          "precision": 0.8695,
+          "recall": 0.9055,
+          "f1": 0.8871
+        }
+      },
+      "class_weights": [
+        1.4817,
+        0.4297,
+        1.7676,
+        1.5533,
+        0.2925,
+        0.4183,
+        0.6693,
+        1.4432,
+        1.5851,
+        0.3593
+      ],
+      "max_abs_err": 1.52587890625e-05,
+      "elapsed_s": 1.141675299999406,
+      "model_path": "data\\models\\mirror_rusher.json",
+      "ckpt_path": "data\\models\\best_rusher.pt",
+      "vectors_path": "data\\models\\test_vectors_rusher.json"
+    },
+    "turtle": {
+      "backend": "numpy-fallback",
+      "data_path": "data\\raw\\turtle.csv",
+      "rows_total": 10761,
+      "rows_train": 8914,
+      "rows_val": 1847,
+      "sessions_total": 36,
+      "sessions_train": 29,
+      "sessions_val": 7,
+      "epochs_ran": 51,
+      "best_epoch": 36,
+      "val_loss": 1.3132579326629639,
+      "val_acc": 0.8072550081212777,
+      "val_macro_f1": 0.41784021443125985,
+      "val_active_macro_f1": 0.7252427184248093,
+      "val_weighted_f1": 0.784736237147157,
+      "majority_acc": 0.4098538170005414,
+      "majority_class": 0,
+      "majority_action": "idle",
+      "per_class": {
+        "idle": {
+          "id": 0,
+          "support": 757,
+          "freq": 0.4099,
+          "precision": 0.8702,
+          "recall": 0.8771,
+          "f1": 0.8737
+        },
+        "walk_fwd": {
+          "id": 1,
+          "support": 63,
+          "freq": 0.0341,
+          "precision": 0.5,
+          "recall": 0.6984,
+          "f1": 0.5828
+        },
+        "walk_back": {
+          "id": 2,
+          "support": 266,
+          "freq": 0.144,
+          "precision": 0.8059,
+          "recall": 0.9211,
+          "f1": 0.8596
+        },
+        "jump": {
+          "id": 3,
+          "support": 26,
+          "freq": 0.0141,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "light": {
+          "id": 4,
+          "support": 27,
+          "freq": 0.0146,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "heavy": {
+          "id": 5,
+          "support": 29,
+          "freq": 0.0157,
+          "precision": 0.75,
+          "recall": 0.1034,
+          "f1": 0.1818
+        },
+        "kick": {
+          "id": 6,
+          "support": 59,
+          "freq": 0.0319,
+          "precision": 0.5349,
+          "recall": 0.3898,
+          "f1": 0.451
+        },
+        "block": {
+          "id": 7,
+          "support": 554,
+          "freq": 0.2999,
+          "precision": 0.8242,
+          "recall": 0.8971,
+          "f1": 0.8591
+        },
+        "dodge": {
+          "id": 8,
+          "support": 40,
+          "freq": 0.0217,
+          "precision": 0.3659,
+          "recall": 0.375,
+          "f1": 0.3704
+        },
+        "dash_fwd": {
+          "id": 9,
+          "support": 26,
+          "freq": 0.0141,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      },
+      "class_weights": [
+        0.2188,
+        0.9663,
+        0.535,
+        1.4643,
+        1.3741,
+        1.3492,
+        1.0874,
+        0.4011,
+        1.1923,
+        1.4115
+      ],
+      "max_abs_err": 3.814697265625e-06,
+      "elapsed_s": 0.9692015000000538,
+      "model_path": "data\\models\\mirror_turtle.json",
+      "ckpt_path": "data\\models\\best_turtle.pt",
+      "vectors_path": "data\\models\\test_vectors_turtle.json"
+    },
+    "poker": {
+      "backend": "numpy-fallback",
+      "data_path": "data\\raw\\poker.csv",
+      "rows_total": 10551,
+      "rows_train": 8379,
+      "rows_val": 2172,
+      "sessions_total": 120,
+      "sessions_train": 96,
+      "sessions_val": 24,
+      "epochs_ran": 54,
+      "best_epoch": 39,
+      "val_loss": 1.105527639389038,
+      "val_acc": 0.8434622467771639,
+      "val_macro_f1": 0.5775641427736762,
+      "val_active_macro_f1": 0.8250916325338231,
+      "val_weighted_f1": 0.828242276791401,
+      "majority_acc": 0.319060773480663,
+      "majority_class": 1,
+      "majority_action": "walk_fwd",
+      "per_class": {
+        "idle": {
+          "id": 0,
+          "support": 359,
+          "freq": 0.1653,
+          "precision": 0.8733,
+          "recall": 0.9025,
+          "f1": 0.8877
+        },
+        "walk_fwd": {
+          "id": 1,
+          "support": 693,
+          "freq": 0.3191,
+          "precision": 0.8816,
+          "recall": 0.9134,
+          "f1": 0.8972
+        },
+        "walk_back": {
+          "id": 2,
+          "support": 198,
+          "freq": 0.0912,
+          "precision": 0.7874,
+          "recall": 0.8232,
+          "f1": 0.8049
+        },
+        "jump": {
+          "id": 3,
+          "support": 22,
+          "freq": 0.0101,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "light": {
+          "id": 4,
+          "support": 83,
+          "freq": 0.0382,
+          "precision": 0.7727,
+          "recall": 0.6145,
+          "f1": 0.6846
+        },
+        "heavy": {
+          "id": 5,
+          "support": 27,
+          "freq": 0.0124,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "kick": {
+          "id": 6,
+          "support": 383,
+          "freq": 0.1763,
+          "precision": 0.7904,
+          "recall": 0.906,
+          "f1": 0.8443
+        },
+        "block": {
+          "id": 7,
+          "support": 210,
+          "freq": 0.0967,
+          "precision": 0.8829,
+          "recall": 0.8619,
+          "f1": 0.8723
+        },
+        "dodge": {
+          "id": 8,
+          "support": 173,
+          "freq": 0.0797,
+          "precision": 0.8012,
+          "recall": 0.7688,
+          "f1": 0.7847
+        },
+        "dash_fwd": {
+          "id": 9,
+          "support": 24,
+          "freq": 0.011,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      },
+      "class_weights": [
+        0.4809,
+        0.3328,
+        0.6548,
+        1.9862,
+        1.0617,
+        1.9384,
+        0.4651,
+        0.6427,
+        0.6869,
+        1.7505
+      ],
+      "max_abs_err": 7.62939453125e-06,
+      "elapsed_s": 1.0076022000012017,
+      "model_path": "data\\models\\mirror_poker.json",
+      "ckpt_path": "data\\models\\best_poker.pt",
+      "vectors_path": "data\\models\\test_vectors_poker.json"
+    },
+    "human_self": {
+      "backend": "numpy-fallback",
+      "data_path": "data\\raw\\human_self.csv",
+      "rows_total": 3570,
+      "rows_train": 2824,
+      "rows_val": 746,
+      "sessions_total": 15,
+      "sessions_train": 12,
+      "sessions_val": 3,
+      "epochs_ran": 84,
+      "best_epoch": 69,
+      "val_loss": 0.9684656262397766,
+      "val_acc": 0.8552278820375335,
+      "val_macro_f1": 0.646691300638045,
+      "val_active_macro_f1": 0.8256304294829214,
+      "val_weighted_f1": 0.8476568140552025,
+      "majority_acc": 0.3190348525469169,
+      "majority_class": 7,
+      "majority_action": "block",
+      "per_class": {
+        "idle": {
+          "id": 0,
+          "support": 3,
+          "freq": 0.004,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "walk_fwd": {
+          "id": 1,
+          "support": 145,
+          "freq": 0.1944,
+          "precision": 0.9016,
+          "recall": 0.7586,
+          "f1": 0.824
+        },
+        "walk_back": {
+          "id": 2,
+          "support": 10,
+          "freq": 0.0134,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "jump": {
+          "id": 3,
+          "support": 20,
+          "freq": 0.0268,
+          "precision": 0.7222,
+          "recall": 0.65,
+          "f1": 0.6842
+        },
+        "light": {
+          "id": 4,
+          "support": 118,
+          "freq": 0.1582,
+          "precision": 0.931,
+          "recall": 0.9153,
+          "f1": 0.9231
+        },
+        "heavy": {
+          "id": 5,
+          "support": 54,
+          "freq": 0.0724,
+          "precision": 0.8333,
+          "recall": 0.8333,
+          "f1": 0.8333
+        },
+        "kick": {
+          "id": 6,
+          "support": 97,
+          "freq": 0.13,
+          "precision": 0.7727,
+          "recall": 0.8763,
+          "f1": 0.8213
+        },
+        "block": {
+          "id": 7,
+          "support": 238,
+          "freq": 0.319,
+          "precision": 0.9004,
+          "recall": 0.9496,
+          "f1": 0.9243
+        },
+        "dodge": {
+          "id": 8,
+          "support": 16,
+          "freq": 0.0214,
+          "precision": 0.6875,
+          "recall": 0.6875,
+          "f1": 0.6875
+        },
+        "dash_fwd": {
+          "id": 9,
+          "support": 45,
+          "freq": 0.0603,
+          "precision": 0.678,
+          "recall": 0.8889,
+          "f1": 0.7692
+        }
+      },
+      "class_weights": [
+        1.9602,
+        0.3811,
+        2.4987,
+        1.1619,
+        0.4924,
+        0.7329,
+        0.4765,
+        0.378,
+        1.2593,
+        0.6591
+      ],
+      "max_abs_err": 2.288818359375e-05,
+      "elapsed_s": 0.6355030000013357,
+      "model_path": "data\\models\\mirror_human_self.json",
+      "ckpt_path": "data\\models\\best_human_self.pt",
+      "vectors_path": "data\\models\\test_vectors_human_self.json"
+    }
+  },
+  "evaluation": {
+    "rusher": {
+      "bot_name": "rusher",
+      "matches": 100,
+      "mirror_wins": 68,
+      "bot_wins": 31,
+      "draws": 1,
+      "mirror_winrate": 0.68,
+      "bot_winrate": 0.31,
+      "draw_rate": 0.01,
+      "ko_rate": 1.0,
+      "avg_ticks": 713.4,
+      "avg_hp_mirror": 10.98,
+      "avg_hp_bot": 4.35,
+      "mean_dist_px": 61.9,
+      "kl_divergence": 0.0414,
+      "tv_distance": 0.079,
+      "mirror_action_dist": {
+        "idle": 0.0304,
+        "walk_fwd": 0.0622,
+        "walk_back": 0.0121,
+        "jump": 0.0186,
+        "light": 0.464,
+        "heavy": 0.1356,
+        "kick": 0.0411,
+        "block": 0.0563,
+        "dodge": 0.0239,
+        "dash_fwd": 0.1559
+      },
+      "bot_action_dist": {
+        "idle": 0.0086,
+        "walk_fwd": 0.0791,
+        "walk_back": 0.0118,
+        "jump": 0.01,
+        "light": 0.4703,
+        "heavy": 0.1376,
+        "kick": 0.0475,
+        "block": 0.021,
+        "dodge": 0.0109,
+        "dash_fwd": 0.2031
+      },
+      "anomalies": {
+        "total_decisions": 3554,
+        "corner_pinned_rate": 0.0,
+        "wall_walk_back_rate": 0.0,
+        "wall_walk_back_when_cornered": 0.0,
+        "cooldown_noop_rate": 0.0023,
+        "out_of_range_attack_rate": 0.0003,
+        "attack_spam_streak_rate": 0.0453,
+        "ood_state_rate": 0.1193,
+        "idle_stall_rate": 0.0
+      },
+      "sample_trajectory_head": [
+        {
+          "tick": 0,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "dash_fwd",
+          "bot_act": "dash_fwd"
+        },
+        {
+          "tick": 6,
+          "mirror_x": -78.0,
+          "bot_x": 78.0,
+          "dist_px": 156.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 12,
+          "mirror_x": -43.0,
+          "bot_x": 43.0,
+          "dist_px": 86.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "kick",
+          "bot_act": "kick"
+        },
+        {
+          "tick": 18,
+          "mirror_x": -43.0,
+          "bot_x": 43.0,
+          "dist_px": 86.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 24,
+          "mirror_x": -49.7,
+          "bot_x": 49.7,
+          "dist_px": 99.4,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 30,
+          "mirror_x": -59.5,
+          "bot_x": 59.5,
+          "dist_px": 119.0,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 36,
+          "mirror_x": -64.5,
+          "bot_x": 64.5,
+          "dist_px": 129.0,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 42,
+          "mirror_x": -65.1,
+          "bot_x": 65.1,
+          "dist_px": 130.2,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "walk_fwd",
+          "bot_act": "walk_fwd"
+        },
+        {
+          "tick": 48,
+          "mirror_x": -45.1,
+          "bot_x": 45.1,
+          "dist_px": 90.2,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "walk_fwd",
+          "bot_act": "walk_fwd"
+        },
+        {
+          "tick": 54,
+          "mirror_x": -25.1,
+          "bot_x": 25.1,
+          "dist_px": 50.2,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "light",
+          "bot_act": "dodge"
+        },
+        {
+          "tick": 60,
+          "mirror_x": -25.1,
+          "bot_x": 55.1,
+          "dist_px": 80.2,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 66,
+          "mirror_x": -25.1,
+          "bot_x": 85.1,
+          "dist_px": 110.2,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 72,
+          "mirror_x": -25.1,
+          "bot_x": 85.1,
+          "dist_px": 110.2,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "dash_fwd",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 78,
+          "mirror_x": 16.9,
+          "bot_x": 85.1,
+          "dist_px": 68.2,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "locked",
+          "bot_act": "dash_fwd"
+        },
+        {
+          "tick": 84,
+          "mirror_x": 33.5,
+          "bot_x": 61.5,
+          "dist_px": 28.0,
+          "mirror_hp": 91.0,
+          "bot_hp": 91.0,
+          "mirror_act": "light",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 90,
+          "mirror_x": 16.0,
+          "bot_x": 45.4,
+          "dist_px": 29.4,
+          "mirror_hp": 91.0,
+          "bot_hp": 86.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 96,
+          "mirror_x": 16.0,
+          "bot_x": 50.8,
+          "dist_px": 34.8,
+          "mirror_hp": 91.0,
+          "bot_hp": 86.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 102,
+          "mirror_x": 16.0,
+          "bot_x": 51.7,
+          "dist_px": 35.7,
+          "mirror_hp": 91.0,
+          "bot_hp": 86.0,
+          "mirror_act": "heavy",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 108,
+          "mirror_x": 16.0,
+          "bot_x": 51.7,
+          "dist_px": 35.7,
+          "mirror_hp": 91.0,
+          "bot_hp": 86.0,
+          "mirror_act": "locked",
+          "bot_act": "light"
+        },
+        {
+          "tick": 114,
+          "mirror_x": 14.6,
+          "bot_x": 51.7,
+          "dist_px": 37.1,
+          "mirror_hp": 86.0,
+          "bot_hp": 86.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 120,
+          "mirror_x": 9.2,
+          "bot_x": 51.7,
+          "dist_px": 42.5,
+          "mirror_hp": 86.0,
+          "bot_hp": 86.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 126,
+          "mirror_x": 8.3,
+          "bot_x": 51.7,
+          "dist_px": 43.4,
+          "mirror_hp": 86.0,
+          "bot_hp": 86.0,
+          "mirror_act": "locked",
+          "bot_act": "heavy"
+        },
+        {
+          "tick": 132,
+          "mirror_x": 8.3,
+          "bot_x": 51.7,
+          "dist_px": 43.4,
+          "mirror_hp": 86.0,
+          "bot_hp": 86.0,
+          "mirror_act": "light",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 138,
+          "mirror_x": 8.3,
+          "bot_x": 53.1,
+          "dist_px": 44.8,
+          "mirror_hp": 86.0,
+          "bot_hp": 81.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 144,
+          "mirror_x": 8.3,
+          "bot_x": 58.5,
+          "dist_px": 50.2,
+          "mirror_hp": 86.0,
+          "bot_hp": 81.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        }
+      ]
+    },
+    "turtle": {
+      "bot_name": "turtle",
+      "matches": 100,
+      "mirror_wins": 12,
+      "bot_wins": 12,
+      "draws": 76,
+      "mirror_winrate": 0.12,
+      "bot_winrate": 0.12,
+      "draw_rate": 0.76,
+      "ko_rate": 0.0,
+      "avg_ticks": 3600.0,
+      "avg_hp_mirror": 98.89,
+      "avg_hp_bot": 98.52,
+      "mean_dist_px": 214.7,
+      "kl_divergence": 0.017,
+      "tv_distance": 0.0508,
+      "mirror_action_dist": {
+        "idle": 0.7499,
+        "walk_fwd": 0.0294,
+        "walk_back": 0.0643,
+        "jump": 0.0225,
+        "light": 0.019,
+        "heavy": 0.0144,
+        "kick": 0.0107,
+        "block": 0.0413,
+        "dodge": 0.0195,
+        "dash_fwd": 0.029
+      },
+      "bot_action_dist": {
+        "idle": 0.7779,
+        "walk_fwd": 0.0226,
+        "walk_back": 0.068,
+        "jump": 0.0123,
+        "light": 0.0109,
+        "heavy": 0.0119,
+        "kick": 0.012,
+        "block": 0.0591,
+        "dodge": 0.0124,
+        "dash_fwd": 0.0129
+      },
+      "anomalies": {
+        "total_decisions": 48961,
+        "corner_pinned_rate": 0.2738,
+        "wall_walk_back_rate": 0.0519,
+        "wall_walk_back_when_cornered": 0.1897,
+        "cooldown_noop_rate": 0.0101,
+        "out_of_range_attack_rate": 0.0423,
+        "attack_spam_streak_rate": 0.0,
+        "ood_state_rate": 0.0807,
+        "idle_stall_rate": 0.5293
+      },
+      "sample_trajectory_head": [
+        {
+          "tick": 0,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 6,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 12,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 18,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 24,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 30,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "kick",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 36,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 42,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 48,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 54,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 60,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 66,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 72,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 78,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "walk_fwd",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 84,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "block"
+        },
+        {
+          "tick": 90,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "light"
+        },
+        {
+          "tick": 96,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "heavy",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 102,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 108,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 114,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 120,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 126,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 132,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 138,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 144,
+          "mirror_x": -100.0,
+          "bot_x": 120.0,
+          "dist_px": 220.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        }
+      ]
+    },
+    "poker": {
+      "bot_name": "poker",
+      "matches": 100,
+      "mirror_wins": 57,
+      "bot_wins": 36,
+      "draws": 7,
+      "mirror_winrate": 0.57,
+      "bot_winrate": 0.36,
+      "draw_rate": 0.07,
+      "ko_rate": 1.0,
+      "avg_ticks": 1035.5,
+      "avg_hp_mirror": 7.29,
+      "avg_hp_bot": 3.84,
+      "mean_dist_px": 113.4,
+      "kl_divergence": 0.0101,
+      "tv_distance": 0.0328,
+      "mirror_action_dist": {
+        "idle": 0.2387,
+        "walk_fwd": 0.2975,
+        "walk_back": 0.0819,
+        "jump": 0.0148,
+        "light": 0.0179,
+        "heavy": 0.0232,
+        "kick": 0.2032,
+        "block": 0.0432,
+        "dodge": 0.0531,
+        "dash_fwd": 0.0267
+      },
+      "bot_action_dist": {
+        "idle": 0.24,
+        "walk_fwd": 0.3209,
+        "walk_back": 0.0836,
+        "jump": 0.0116,
+        "light": 0.019,
+        "heavy": 0.0133,
+        "kick": 0.2046,
+        "block": 0.047,
+        "dodge": 0.049,
+        "dash_fwd": 0.0109
+      },
+      "anomalies": {
+        "total_decisions": 7989,
+        "corner_pinned_rate": 0.2922,
+        "wall_walk_back_rate": 0.069,
+        "wall_walk_back_when_cornered": 0.2362,
+        "cooldown_noop_rate": 0.0081,
+        "out_of_range_attack_rate": 0.0103,
+        "attack_spam_streak_rate": 0.001,
+        "ood_state_rate": 0.0499,
+        "idle_stall_rate": 0.0014
+      },
+      "sample_trajectory_head": [
+        {
+          "tick": 0,
+          "mirror_x": -120.0,
+          "bot_x": 120.0,
+          "dist_px": 240.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "walk_fwd",
+          "bot_act": "walk_fwd"
+        },
+        {
+          "tick": 6,
+          "mirror_x": -100.0,
+          "bot_x": 100.0,
+          "dist_px": 200.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "walk_fwd",
+          "bot_act": "walk_fwd"
+        },
+        {
+          "tick": 12,
+          "mirror_x": -80.0,
+          "bot_x": 80.0,
+          "dist_px": 160.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "jump",
+          "bot_act": "walk_fwd"
+        },
+        {
+          "tick": 18,
+          "mirror_x": -60.0,
+          "bot_x": 60.0,
+          "dist_px": 120.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "walk_fwd",
+          "bot_act": "walk_fwd"
+        },
+        {
+          "tick": 24,
+          "mirror_x": -40.0,
+          "bot_x": 40.0,
+          "dist_px": 80.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "kick",
+          "bot_act": "heavy"
+        },
+        {
+          "tick": 30,
+          "mirror_x": -20.0,
+          "bot_x": 40.0,
+          "dist_px": 60.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 36,
+          "mirror_x": -0.0,
+          "bot_x": 40.0,
+          "dist_px": 40.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 42,
+          "mirror_x": 20.0,
+          "bot_x": 40.0,
+          "dist_px": 20.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 48,
+          "mirror_x": 40.0,
+          "bot_x": 40.0,
+          "dist_px": 0.0,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 54,
+          "mirror_x": 65.7,
+          "bot_x": 34.3,
+          "dist_px": 31.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "dodge",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 60,
+          "mirror_x": 85.7,
+          "bot_x": 34.3,
+          "dist_px": 51.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "dodge",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 66,
+          "mirror_x": 95.7,
+          "bot_x": 34.3,
+          "dist_px": 61.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "light",
+          "bot_act": "dodge"
+        },
+        {
+          "tick": 72,
+          "mirror_x": 95.7,
+          "bot_x": 4.3,
+          "dist_px": 91.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 78,
+          "mirror_x": 95.7,
+          "bot_x": -25.7,
+          "dist_px": 121.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 84,
+          "mirror_x": 95.7,
+          "bot_x": -25.7,
+          "dist_px": 121.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "walk_fwd",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 90,
+          "mirror_x": 75.7,
+          "bot_x": -25.7,
+          "dist_px": 101.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "kick",
+          "bot_act": "kick"
+        },
+        {
+          "tick": 96,
+          "mirror_x": 75.7,
+          "bot_x": -25.7,
+          "dist_px": 101.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 102,
+          "mirror_x": 75.7,
+          "bot_x": -25.7,
+          "dist_px": 101.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 108,
+          "mirror_x": 75.7,
+          "bot_x": -25.7,
+          "dist_px": 101.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 114,
+          "mirror_x": 75.7,
+          "bot_x": -25.7,
+          "dist_px": 101.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        },
+        {
+          "tick": 120,
+          "mirror_x": 75.7,
+          "bot_x": -25.7,
+          "dist_px": 101.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "walk_back",
+          "bot_act": "walk_back"
+        },
+        {
+          "tick": 126,
+          "mirror_x": 90.7,
+          "bot_x": -40.7,
+          "dist_px": 131.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "idle",
+          "bot_act": "idle"
+        },
+        {
+          "tick": 132,
+          "mirror_x": 90.7,
+          "bot_x": -40.7,
+          "dist_px": 131.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "walk_fwd",
+          "bot_act": "walk_fwd"
+        },
+        {
+          "tick": 138,
+          "mirror_x": 70.7,
+          "bot_x": -20.7,
+          "dist_px": 91.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "kick",
+          "bot_act": "kick"
+        },
+        {
+          "tick": 144,
+          "mirror_x": 70.7,
+          "bot_x": -20.7,
+          "dist_px": 91.3,
+          "mirror_hp": 100.0,
+          "bot_hp": 100.0,
+          "mirror_act": "locked",
+          "bot_act": "locked"
+        }
+      ]
+    }
+  },
+  "cross_kl_matrix": {
+    "mirror_rusher": {
+      "rusher": 0.0414,
+      "turtle": 2.484,
+      "poker": 1.41
+    },
+    "mirror_turtle": {
+      "rusher": 2.2713,
+      "turtle": 0.017,
+      "poker": 1.1477
+    },
+    "mirror_poker": {
+      "rusher": 1.9277,
+      "turtle": 0.7885,
+      "poker": 0.0101
+    }
+  },
+  "artifacts": {
+    "metrics_csv": "results\\week4_baseline_metrics.csv",
+    "summary_json": "results\\week4_baseline_summary.json",
+    "report_md": "results\\week4_baseline_report.md",
+    "plot_png": "results\\week4_action_distributions.png"
+  }
+}
