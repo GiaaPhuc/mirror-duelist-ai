@@ -9,8 +9,20 @@ enum State { IDLE, ATTACK, BLOCK, STUN, DODGE, DASH }
 const BODY_W := 28.0
 const BODY_H := 56.0
 const NEVER_HIT := 100000
+const SCARF_SEGMENTS := 6
+const SCARF_SEG_LEN := 4.8
 
-@export var body_color: Color = Color(0.35, 0.55, 0.95, 1.0)
+@export var body_color: Color = Color(0.22, 0.62, 0.98, 1.0)
+@export var accent_color: Color = Color(0.25, 0.85, 1.0, 1.0)
+
+var archetype: String = "player"
+var is_mirror_clone: bool = false
+var display_name: String = "NGƯỜI CHƠI"
+var display_subtitle: String = "Võ Sĩ Ánh Sáng"
+var show_debug_boxes: bool = false
+var anim_time: float = 0.0
+var hit_flash_ticks: int = 0
+var scarf_points: PackedVector2Array = PackedVector2Array()
 
 var facing: int = 1 ## 1 = nhìn phải, -1 = nhìn trái
 var velocity := Vector2.ZERO
@@ -31,6 +43,42 @@ var _total: int = 0
 var _move: Dictionary = {}
 
 
+func configure_visuals(
+	role_key: String,
+	mirror_flag: bool,
+	title_text: String = "",
+	subtitle_text: String = ""
+) -> void:
+	archetype = role_key.to_lower()
+	is_mirror_clone = mirror_flag
+	if title_text != "":
+		display_name = title_text
+	if subtitle_text != "":
+		display_subtitle = subtitle_text
+
+	if mirror_flag:
+		body_color = Color(0.56, 0.44, 0.96, 1.0)
+		accent_color = Color(0.45, 0.92, 1.0, 1.0)
+		return
+
+	match archetype:
+		"player":
+			body_color = Color(0.18, 0.56, 0.96, 1.0)
+			accent_color = Color(0.22, 0.86, 1.0, 1.0)
+		"rusher":
+			body_color = Color(0.92, 0.28, 0.24, 1.0)
+			accent_color = Color(1.0, 0.58, 0.18, 1.0)
+		"turtle":
+			body_color = Color(0.16, 0.72, 0.54, 1.0)
+			accent_color = Color(0.38, 0.95, 0.72, 1.0)
+		"poker":
+			body_color = Color(0.76, 0.30, 0.88, 1.0)
+			accent_color = Color(0.98, 0.46, 0.82, 1.0)
+		_:
+			body_color = Color(0.86, 0.66, 0.22, 1.0)
+			accent_color = Color(1.0, 0.84, 0.32, 1.0)
+
+
 func reset(x: float, face: int) -> void:
 	position = Vector2(x, GameConstants.ARENA_FLOOR_Y)
 	velocity = Vector2.ZERO
@@ -44,12 +92,45 @@ func reset(x: float, face: int) -> void:
 	attack_connected = false
 	combo = 0
 	ticks_since_hit = NEVER_HIT
+	hit_flash_ticks = 0
 	for i in cooldowns.size():
 		cooldowns[i] = 0
+	_init_scarf()
 
 
-func _process(_delta: float) -> void:
+func _init_scarf() -> void:
+	scarf_points.resize(SCARF_SEGMENTS)
+	var anchor := position + Vector2(-float(facing) * 3.0, -52.0)
+	for i in SCARF_SEGMENTS:
+		scarf_points[i] = anchor + Vector2(-float(facing) * float(i) * SCARF_SEG_LEN, float(i) * 1.2)
+
+
+func _process(delta: float) -> void:
+	anim_time += delta
+	_update_scarf(delta)
 	queue_redraw()
+
+
+func _update_scarf(delta: float) -> void:
+	if scarf_points.size() != SCARF_SEGMENTS:
+		_init_scarf()
+	var pose := FighterRenderer.compute_pose(self, anim_time)
+	var head_local: Vector2 = pose["head"]
+	var anchor := position + head_local + Vector2(-float(facing) * 3.5, -1.5)
+	scarf_points[0] = anchor
+	var wind_x := -float(facing) * 42.0 - velocity.x * 0.18 + sin(anim_time * 7.5) * 12.0
+	var gravity_y := 26.0 + cos(anim_time * 6.0) * 8.0
+	var step_dt := clampf(delta, 0.001, 0.05)
+	for i in range(1, SCARF_SEGMENTS):
+		var target_drift := Vector2(wind_x, gravity_y) * step_dt
+		var cur := scarf_points[i] + target_drift
+		var prev := scarf_points[i - 1]
+		var diff := cur - prev
+		var d := diff.length()
+		if d > 0.001:
+			scarf_points[i] = prev + (diff / d) * SCARF_SEG_LEN
+		else:
+			scarf_points[i] = prev + Vector2(-float(facing) * SCARF_SEG_LEN, 1.0)
 
 
 # --- Truy vấn trạng thái ---
@@ -168,6 +249,8 @@ func face_opponent(opp: FighterCharacter) -> void:
 
 
 func tick() -> void:
+	if hit_flash_ticks > 0:
+		hit_flash_ticks -= 1
 	ticks_since_hit = mini(ticks_since_hit + 1, NEVER_HIT)
 	for i in cooldowns.size():
 		if cooldowns[i] > 0:
@@ -265,6 +348,7 @@ func take_hit(damage: float, hitstun: int, push_dir: float, knockback: float) ->
 	state = State.STUN
 	state_ticks = 0
 	stun_left = hitstun
+	hit_flash_ticks = 4
 	velocity.x = push_dir * knockback
 	intent = GameConstants.ACTION_IDLE
 	attack_connected = true # huỷ đòn đang thực hiện, không gây sát thương thêm
@@ -275,22 +359,7 @@ func take_block(damage: float, push_dir: float) -> void:
 	velocity.x = push_dir * GameConstants.BLOCK_PUSHBACK
 
 
-# --- Hiển thị (placeholder) ---
+# --- Hiển thị Võ sĩ Stylized Shadow-Neon ---
 
 func _draw() -> void:
-	var rect := Rect2(-BODY_W * 0.5, -BODY_H, BODY_W, BODY_H)
-	var col := body_color
-	if state == State.STUN:
-		col = Color(1.0, 0.9, 0.3, 1.0)
-	elif state == State.DODGE:
-		col.a = 0.4 if is_invincible() else 0.7
-	draw_rect(rect, col)
-	draw_rect(rect, Color(0.1, 0.1, 0.15, 1.0), false, 2.0)
-	if state == State.BLOCK:
-		var sx := float(facing) * (BODY_W * 0.5 + 6.0)
-		draw_line(Vector2(sx, -BODY_H + 4.0), Vector2(sx, -4.0), Color(0.5, 0.9, 1.0, 1.0), 5.0)
-	var nose_x := float(facing) * (BODY_W * 0.5 + 4.0)
-	draw_line(Vector2(nose_x - facing * 6.0, -BODY_H * 0.65), Vector2(nose_x, -BODY_H * 0.65), Color.WHITE, 3.0)
-	if has_active_hitbox():
-		var hb := get_hitbox()
-		draw_rect(Rect2(hb.position - position, hb.size), Color(1.0, 0.3, 0.2, 0.55))
+	FighterRenderer.draw_fighter(self, self, anim_time, 1.0)
