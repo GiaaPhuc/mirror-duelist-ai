@@ -10,6 +10,8 @@ var temperature: float = 0.7
 var greedy: bool = false
 var rng := RandomNumberGenerator.new()
 var model_path: String = DEFAULT_MODEL_PATH
+var last_probs: PackedFloat32Array = PackedFloat32Array()
+var last_action: int = GameConstants.ACTION_IDLE
 
 
 func _init(
@@ -40,8 +42,12 @@ func is_loaded() -> bool:
 
 func decide(state: PackedFloat32Array) -> int:
 	if not mlp.is_loaded():
-		return GameConstants.ACTION_IDLE
+		last_action = GameConstants.ACTION_IDLE
+		return last_action
 	var logits := mlp.forward(state)
+	last_probs = mlp.probs(logits, temperature)
 	if greedy:
-		return mlp.argmax(logits)
-	return mlp.sample_action(logits, temperature, rng)
+		last_action = mlp.argmax(logits)
+		return last_action
+	last_action = mlp.sample_action(logits, temperature, rng)
+	return last_action

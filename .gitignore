@@ -1,6 +1,7 @@
 # Godot
 game/.godot/
 *.import
+*.uid
 export_presets.cfg
 
 # Python

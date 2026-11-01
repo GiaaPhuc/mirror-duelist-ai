@@ -18,7 +18,8 @@ Game đối kháng 2D: AI học phong cách chiến đấu của người chơi 
    - **1 / 2 / 3 / 0**: đổi đối thủ Bot (`Rusher` / `Turtle` / `Poker` / `Random`)
    - **4 / 5 / 6 / 7 / 8**: đấu với `Mirror` (`Mặc định` / `Mirror-Rusher` / `Mirror-Turtle` / `Mirror-Poker` / `Mirror-Self`)
    - **9**: chế độ xem trực quan **Mirror-X đấu Bot-X** (luân phiên `Rusher` / `Turtle` / `Poker`)
-   - **R/Enter**: chơi lại phiên mới.
+   - **R/Enter**: chơi lại phiên mới · **Esc**: mở/đóng Menu chọn chế độ
+   - **Tab**: bật/tắt bảng phân phối xác suất `AI Brain` (MLP 10 Hz) · **F2**: bật/tắt khung Hitbox/Hurtbox.
 
 ## Chạy headless, Smoke Test & Baseline Tuần 4
 
